@@ -1,0 +1,381 @@
+/* ==========================================================================
+   Terminal portfolio — style.css
+   Pure CSS, no build step. Themes are just [data-theme] variable swaps.
+   Add your own theme by copying a block below.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Themes
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="matrix"] {
+  --bg:        #050806;
+  --bg-panel:  #081009;
+  --fg:        #b8f5c7;
+  --dim:       #3f7a55;
+  --accent:    #00ff9c;
+  --accent-2:  #7cf2ff;
+  --warn:      #ffd166;
+  --err:       #ff5c7a;
+  --ok:        #00ff9c;
+  --border:    #143d2a;
+  --selection: #0f5c3a;
+  --shadow:    0 30px 90px rgba(0, 255, 156, .10);
+}
+
+[data-theme="dracula"] {
+  --bg:        #171825;
+  --bg-panel:  #1e2030;
+  --fg:        #e8e8f2;
+  --dim:       #6272a4;
+  --accent:    #ff79c6;
+  --accent-2:  #8be9fd;
+  --warn:      #f1fa8c;
+  --err:       #ff5555;
+  --ok:        #50fa7b;
+  --border:    #33364d;
+  --selection: #44475a;
+  --shadow:    0 30px 90px rgba(255, 121, 198, .13);
+}
+
+[data-theme="nord"] {
+  --bg:        #2e3440;
+  --bg-panel:  #333b4a;
+  --fg:        #e5e9f0;
+  --dim:       #6d7a94;
+  --accent:    #88c0d0;
+  --accent-2:  #a3be8c;
+  --warn:      #ebcb8b;
+  --err:       #bf616a;
+  --ok:        #a3be8c;
+  --border:    #414a5c;
+  --selection: #4c566a;
+  --shadow:    0 30px 90px rgba(136, 192, 208, .13);
+}
+
+[data-theme="amber"] {
+  --bg:        #12100a;
+  --bg-panel:  #1a170e;
+  --fg:        #ffd9a0;
+  --dim:       #7a6033;
+  --accent:    #ffb000;
+  --accent-2:  #ff8c42;
+  --warn:      #ffe08a;
+  --err:       #ff6b6b;
+  --ok:        #b6d36a;
+  --border:    #3a2f16;
+  --selection: #5c4415;
+  --shadow:    0 30px 90px rgba(255, 176, 0, .12);
+}
+
+[data-theme="paper"] {
+  --bg:        #f4f1e8;
+  --bg-panel:  #fbf9f3;
+  --fg:        #2b2a26;
+  --dim:       #8a8578;
+  --accent:    #b4531f;
+  --accent-2:  #1f6f8b;
+  --warn:      #a67c00;
+  --err:       #b00020;
+  --ok:        #2e7d32;
+  --border:    #ded8c8;
+  --selection: #e4d9bd;
+  --shadow:    0 30px 90px rgba(80, 70, 40, .14);
+}
+
+/* --------------------------------------------------------------------------
+   2. Base
+   -------------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 800px at 50% -10%, var(--bg-panel), transparent 70%),
+    var(--bg);
+  color: var(--fg);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono",
+               Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 15px;
+  line-height: 1.55;
+  display: grid;
+  place-items: center;
+  padding: clamp(0px, 2vw, 28px);
+  overflow: hidden;
+  transition: background-color .35s ease, color .35s ease;
+}
+
+::selection { background: var(--selection); color: var(--fg); }
+
+/* --------------------------------------------------------------------------
+   3. Chrome: CRT overlay + window
+   -------------------------------------------------------------------------- */
+.crt {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, .16) 0 1px,
+      transparent 1px 3px
+    );
+  opacity: .5;
+  mix-blend-mode: multiply;
+}
+[data-theme="paper"] .crt { opacity: .12; mix-blend-mode: normal; }
+
+.terminal {
+  width: min(1000px, 100%);
+  height: min(760px, 100%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--bg-panel) 92%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow), 0 0 0 1px rgba(0, 0, 0, .25);
+  backdrop-filter: blur(4px);
+}
+
+.titlebar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.dots { display: inline-flex; gap: 7px; }
+.dots i {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--dim);
+  display: block;
+}
+.dots i:nth-child(1) { background: #ff5f57; }
+.dots i:nth-child(2) { background: #febc2e; }
+.dots i:nth-child(3) { background: #28c840; }
+[data-theme="paper"] .dots i { filter: saturate(.7); }
+
+.title {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.themebtn {
+  flex: none;
+  font: inherit;
+  font-size: 11px;
+  color: var(--dim);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 9px;
+  cursor: pointer;
+  transition: color .2s, border-color .2s, background-color .2s;
+}
+.themebtn:hover, .themebtn:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
+}
+
+/* --------------------------------------------------------------------------
+   4. Screen + output
+   -------------------------------------------------------------------------- */
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 20px 22px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dim) transparent;
+  outline: none;
+  cursor: text;
+}
+.screen::-webkit-scrollbar { width: 9px; }
+.screen::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--dim) 70%, transparent);
+  border-radius: 10px;
+}
+.screen::-webkit-scrollbar-track { background: transparent; }
+
+.out { white-space: pre-wrap; word-break: break-word; }
+
+.line { min-height: 1.55em; }
+
+.ascii {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: clamp(6px, 1.55vw, 13px);
+  line-height: 1.12;
+  margin: 2px 0 8px;
+  text-shadow: 0 0 14px color-mix(in srgb, var(--accent) 45%, transparent);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Text roles */
+.prompt-echo { color: var(--fg); }
+.dim      { color: var(--dim); }
+.fg       { color: var(--fg); }
+.accent   { color: var(--accent); }
+.accent-2 { color: var(--accent-2); }
+.ok       { color: var(--ok); }
+.warn     { color: var(--warn); }
+.err      { color: var(--err); }
+.bold     { font-weight: 700; }
+.italic   { font-style: italic; }
+
+.section {
+  margin: 10px 0 4px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-size: .86em;
+}
+.section::before { content: "── "; color: var(--dim); }
+
+.kv { display: grid; grid-template-columns: minmax(88px, max-content) 1fr; gap: 0 14px; }
+.kv dt { color: var(--dim); }
+.kv dd { margin: 0; color: var(--fg); }
+
+a { color: var(--accent-2); text-decoration: none; border-bottom: 1px dotted currentColor; }
+a:hover, a:focus-visible { color: var(--accent); border-bottom-style: solid; outline: none; }
+
+.tag {
+  display: inline-block;
+  padding: 0 7px;
+  margin: 2px 4px 2px 0;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--fg);
+  font-size: .92em;
+}
+
+.bar { letter-spacing: -1px; }
+.bar .fill { color: var(--accent); }
+.bar .empty { color: color-mix(in srgb, var(--dim) 60%, transparent); }
+
+.entry-num { color: var(--dim); }
+
+/* neofetch side-by-side layout */
+.fetch { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; margin: 4px 0 8px; }
+.fetch-art {
+  color: var(--accent);
+  font-size: 8px;
+  line-height: 1.12;
+  margin: 0;
+  white-space: pre;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+.fetch-info { min-width: 230px; }
+.fetch-info .kv { grid-template-columns: minmax(64px, max-content) 1fr; }
+@media (max-width: 780px) {
+  .fetch { flex-direction: column; }
+}
+
+/* Command suggestion / autocomplete hint */
+.ghost { color: color-mix(in srgb, var(--dim) 75%, transparent); }
+
+/* --------------------------------------------------------------------------
+   5. Prompt line
+   -------------------------------------------------------------------------- */
+.promptline {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 2px;
+}
+.prompt { flex: none; white-space: nowrap; }
+.prompt .user   { color: var(--ok); font-weight: 700; }
+.prompt .at     { color: var(--dim); }
+.prompt .host   { color: var(--ok); font-weight: 700; }
+.prompt .colon  { color: var(--dim); }
+.prompt .path   { color: var(--accent-2); font-weight: 700; }
+.prompt .sigil  { color: var(--accent); margin-left: 6px; }
+
+.entrywrap { position: relative; flex: 1; min-width: 0; }
+.entry { white-space: pre-wrap; word-break: break-all; }
+
+/* The real input sits invisibly on top so taps open the mobile keyboard. */
+.realinput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  caret-color: transparent;
+  font: inherit;
+  opacity: 0;
+  outline: none;
+}
+
+.caret {
+  display: none;
+  width: .6em;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -.18em;
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.screen.focused .caret { display: inline-block; animation: blink 1.05s steps(1) infinite; }
+@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* --------------------------------------------------------------------------
+   6. noscript / misc
+   -------------------------------------------------------------------------- */
+.noscript {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: .3rem;
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg);
+  z-index: 40;
+}
+.noscript h1 { font-size: 1.4rem; margin: 0; color: var(--accent); }
+
+/* --------------------------------------------------------------------------
+   7. Responsive + motion
+   -------------------------------------------------------------------------- */
+@media (max-width: 620px) {
+  body { font-size: 13px; padding: 0; }
+  .terminal {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+  .title { display: none; }
+  .screen { padding: 14px 14px 18px; }
+  .kv { grid-template-columns: 1fr; gap: 0; }
+  .kv dt { margin-top: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caret { animation: none !important; }
+  * { transition-duration: .001ms !important; }
+}
