@@ -3,13 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dylan Uijthof — Terminal Portfolio</title>
-  <meta name="description" content="Interactive terminal-style portfolio of Dylan Uijthof. Type 'help' to get started.">
+  <title>Dylan Uijthof — Portfolio</title>
+  <meta name="description" content="Portfolio of Dylan Uijthof. Open a terminal, type 'cat portfolio.txt'.">
   <meta name="color-scheme" content="dark light">
 
-  <!-- Social preview (edit the URLs/text to match you) -->
   <meta property="og:title" content="Dylan Uijthof — Portfolio">
-  <meta property="og:description" content="An interactive terminal portfolio.">
+  <meta property="og:description" content="Type 'cat portfolio.txt' to open my work.">
   <meta property="og:type" content="website">
 
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050806'/%3E%3Ctext x='6' y='23' font-family='monospace' font-size='16' fill='%2300ff9c'%3E%3E_%3C/text%3E%3C/svg%3E">
@@ -20,38 +19,62 @@
 
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <div class="crt" aria-hidden="true"></div>
+<body data-page="home">
 
-  <main class="terminal" id="terminal">
-    <header class="titlebar">
-      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="title" id="title">dylan@portfolio: ~ — zsh</span>
-      <button class="themebtn" id="themebtn" type="button"
-              title="Cycle theme (or type: theme)">theme</button>
-    </header>
+  <header class="nav">
+    <a class="nav-brand" href="index.html"><span class="brand-sigil">&gt;</span> dylan</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="index.html" class="active">home</a>
+      <a href="projects.html">projects</a>
+      <a href="about.html">about</a>
+      <a href="contact.html">contact</a>
+    </nav>
+    <button class="themebtn" id="themebtn" type="button" aria-label="Switch theme" title="Cycle theme">theme</button>
+  </header>
 
-    <div class="screen" id="screen" tabindex="-1">
-      <div class="out" id="out" role="log" aria-live="polite" aria-label="Terminal output"></div>
+  <main class="page page-home">
+    <section class="hero">
+      <h1>Dylan Uijthof</h1>
+      <p class="lede">Full-Stack Developer</p>
+      <p class="sub">I build fast, accessible things for the web.</p>
+      <p class="hint">Try typing <code>cat portfolio.txt</code> below</p>
+    </section>
 
-      <form class="promptline" id="form" autocomplete="off">
-        <label class="prompt" for="entry" id="prompt">
-          <span class="user">dylan</span><span class="at">@</span><span class="host">portfolio</span><span class="colon">:</span><span class="path">~</span><span class="sigil">$</span>
-        </label>
-        <span class="entrywrap">
-          <span class="entry" id="entryText"></span><span class="caret" id="caret" aria-hidden="true"></span>
-          <input class="realinput" id="entry" type="text" name="cmd"
-                 autocapitalize="off" autocorrect="off" autocomplete="off"
-                 spellcheck="false" aria-label="Type a command and press Enter">
-        </span>
-      </form>
-    </div>
+    <section class="term-wrap">
+      <div class="terminal" id="terminal">
+        <header class="titlebar">
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="title" id="title">dylan@portfolio: ~</span>
+          <span class="titlebar-note">type <code>help</code></span>
+        </header>
+
+        <div class="screen" id="screen" tabindex="-1">
+          <div class="out" id="out" role="log" aria-live="polite" aria-label="Terminal output"></div>
+
+          <form class="promptline" id="form" autocomplete="off">
+            <label class="prompt" for="entry" id="prompt">
+              <span class="user">dylan</span><span class="at">@</span><span class="host">portfolio</span><span class="colon">:</span><span class="path">~</span><span class="sigil">$</span>
+            </label>
+            <span class="entrywrap">
+              <span class="entry" id="entryText"></span><span class="caret" id="caret" aria-hidden="true"></span>
+              <input class="realinput" id="entry" type="text" name="cmd"
+                     autocapitalize="off" autocorrect="off" autocomplete="off"
+                     spellcheck="false" aria-label="Type a command and press Enter">
+            </span>
+          </form>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="foot">
+    © <span id="year">2026</span> Dylan Uijthof · built with pure html/css/js
+  </footer>
 
   <noscript>
     <div class="noscript">
       <h1>Dylan Uijthof</h1>
-      <p>This portfolio is an interactive terminal and needs JavaScript.
+      <p>This portfolio uses a terminal that needs JavaScript.
          Reach me at <a href="mailto:dylanuijthof07@gmail.com">dylanuijthof07@gmail.com</a>.</p>
     </div>
   </noscript>

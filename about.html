@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="matrix">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About — Dylan Uijthof</title>
+  <meta name="description" content="About Dylan Uijthof.">
+  <meta name="color-scheme" content="dark light">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050806'/%3E%3Ctext x='6' y='23' font-family='monospace' font-size='16' fill='%2300ff9c'%3E%3E_%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-page="about">
+
+  <header class="nav">
+    <a class="nav-brand" href="index.html"><span class="brand-sigil">&gt;</span> dylan</a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="index.html">home</a>
+      <a href="projects.html">projects</a>
+      <a href="about.html" class="active">about</a>
+      <a href="contact.html">contact</a>
+    </nav>
+    <button class="themebtn" id="themebtn" type="button" aria-label="Switch theme" title="Cycle theme">theme</button>
+  </header>
+
+  <main class="page">
+    <section class="page-head">
+      <h1>about</h1>
+      <p class="sub">Who I am and what I work with. Edit the bio in <code>main.js</code> → <code>PROFILE</code>/<code>SKILLS</code>.</p>
+    </section>
+
+    <section class="two-col">
+      <div class="panel">
+        <h2 class="section-title">bio</h2>
+        <p id="about-bio"><!-- filled by main.js --></p>
+        <p class="status-line" id="about-status"></p>
+      </div>
+      <div class="panel">
+        <h2 class="section-title">skills</h2>
+        <div id="skill-bars"><!-- filled by main.js --></div>
+      </div>
+    </section>
+
+    <p class="backlink"><a href="index.html">← back to the terminal</a></p>
+  </main>
+
+  <footer class="foot">© <span id="year">2026</span> Dylan Uijthof</footer>
+
+  <script src="main.js"></script>
+</body>
+</html>

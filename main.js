@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Terminal portfolio — main.js
-   Zero dependencies. Everything you need to edit is in the CONFIG block.
+   Portfolio — main.js
+   Zero dependencies. Edit your content in the CONFIG block below.
    ========================================================================== */
 
 /* ==========================================================================
@@ -9,7 +9,7 @@
 
 const PROFILE = {
   name:     "Dylan Uijthof",
-  handle:   "dylan",                    // shown in the prompt: dylan@portfolio
+  handle:   "dylan",                    // shown in the terminal prompt & navbar
   host:     "portfolio",
   role:     "Full-Stack Developer",     // placeholder
   location: "City, Country",            // placeholder
@@ -20,8 +20,6 @@ const PROFILE = {
     "Hi — I'm Dylan. I'm a developer who likes turning fuzzy ideas into",
     "products people actually use. I care about performance, accessibility",
     "and writing code that the next person can read.",
-    "",
-    "[ EDIT ME ] Replace this bio, the role above and the project list below.",
   ],
   socials: [
     { label: "GitHub",   url: "https://github.com/Dylan-Uijthof" },
@@ -75,7 +73,7 @@ const EXPERIENCE = [
   },
 ];
 
-/* Themes must match a [data-theme="name"] block in style.css */
+/* Must match a [data-theme="name"] block in style.css */
 const THEMES = ["matrix", "dracula", "nord", "amber", "paper"];
 
 /* ==========================================================================
@@ -91,23 +89,125 @@ const BANNER = [
 ];
 
 const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const TERMINAL = document.getElementById("terminal");
 
 /* --------------------------------------------------------------------------
-   DOM
+   Shared helpers
    -------------------------------------------------------------------------- */
-const root      = document.documentElement;
-const outEl     = document.getElementById("out");
-const screenEl  = document.getElementById("screen");
-const formEl    = document.getElementById("form");
-const inputEl   = document.getElementById("entry");
-const entryEl   = document.getElementById("entryText");
-const titleEl   = document.getElementById("title");
-const themeBtn  = document.getElementById("themebtn");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const stripScheme = (url) => url.replace(/^https?:\/\//, "").replace(/^mailto:/, "");
+
+const link = (url, label) =>
+  `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+
+const tBtn = (num, label, href, external = false) => {
+  const target = external ? ` target="_blank" rel="noopener noreferrer"` : "";
+  return `<a class="t-btn" href="${esc(href)}"${target}><span class="num">[${num}]</span>${esc(label)}</a>`;
+};
+
+const fileView = (name, mode, lines) => {
+  const body = lines.map((l) => `<div>${l}</div>`).join("");
+  return `<div class="file"><div class="file-head"><span>${esc(name)}</span><span class="dim">${esc(mode)}</span></div><div class="file-body">${body}</div></div>`;
+};
+
+const bar = (level) => `█`.repeat(Math.round(level / 5)) + `░`.repeat(20 - Math.round(level / 5));
+
+function setTheme(name, announce) {
+  document.documentElement.setAttribute("data-theme", name);
+  try { localStorage.setItem("portfolio-theme", name); } catch (_) {}
+  if (TERMINAL && announce && typeof line === "function") line(`theme → ${name}`, "accent");
+}
+function cycleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme");
+  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
+  setTheme(next, true);
+}
 
 /* --------------------------------------------------------------------------
-   Output helpers
+   Page rendering (non-terminal pages)
+   -------------------------------------------------------------------------- */
+
+/* about.html */
+function renderAbout() {
+  const bio = document.getElementById("about-bio");
+  const status = document.getElementById("about-status");
+  if (bio) {
+    bio.textContent = PROFILE.bio.join(" ").replace(/\s+/g, " ");
+  }
+  if (status) {
+    status.textContent = PROFILE.status;
+    status.className = "status-line";
+  }
+  const bars = document.getElementById("skill-bars");
+  if (bars) {
+    bars.innerHTML = "";
+    for (const s of SKILLS) {
+      const row = document.createElement("div");
+      row.className = "skill-row";
+      row.innerHTML =
+        `<div class="skill-name"><span>${esc(s.name)}</span><em>${s.level}%</em></div>` +
+        `<div class="bar-track"><div class="bar-fill" data-level="${s.level}"></div></div>`;
+      bars.appendChild(row);
+    }
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        bars.querySelectorAll(".bar-fill").forEach((f) => { f.style.width = f.dataset.level + "%"; });
+      }, 60);
+    });
+  }
+}
+
+/* projects.html */
+function renderProjects() {
+  const grid = document.getElementById("project-cards");
+  if (!grid) return;
+  grid.innerHTML = "";
+  for (const p of PROJECTS) {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML =
+      `<h3>${esc(p.name)} <span class="year">${esc(p.year)}</span></h3>` +
+      `<p>${esc(p.desc)}</p>` +
+      `<div class="tags">${p.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>` +
+      (p.url && p.url !== "#"
+        ? `<a class="card-link" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">visit →</a>`
+        : `<span class="card-link dim">no link yet</span>`);
+    grid.appendChild(card);
+  }
+  if (!PROJECTS.length) {
+    const p = document.createElement("p");
+    p.className = "dim";
+    p.textContent = "No projects yet — add some in main.js → PROJECTS.";
+    grid.appendChild(p);
+  }
+}
+
+/* contact.html */
+function renderContact() {
+  const list = document.getElementById("contact-list");
+  if (!list) return;
+  list.innerHTML = "";
+  const card = (title, meta, href, label) =>
+    `<div class="contact-card"><h3>${title}</h3><div class="meta">${meta}</div>` +
+    `${link(href, label)}</div>`;
+  list.innerHTML =
+    card("email", "best for a quick message", `mailto:${PROFILE.email}`, PROFILE.email) +
+    PROFILE.socials
+      .filter((s) => s.url !== "mailto:" + PROFILE.email)
+      .map((s) => card(s.label, "link", s.url, stripScheme(s.url)))
+      .join("");
+}
+
+/* --------------------------------------------------------------------------
+   Output helpers (terminal pages only)
    -------------------------------------------------------------------------- */
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const outEl    = document.getElementById("out");
+const screenEl = document.getElementById("screen");
+const formEl   = document.getElementById("form");
+const inputEl  = document.getElementById("entry");
 
 function scroll() { screenEl.scrollTop = screenEl.scrollHeight; }
 
@@ -132,10 +232,15 @@ function raw(html, cls = "") {
   return d;
 }
 
-/** Type text out character by character (respects skip / reduced motion). */
+/** Type text out character by character (honours skip / reduced motion). */
 async function typeOut(text, cls = "", speed = 12) {
   const d = line("", cls);
-  if (skip || speed === 0) { if (text) d.textContent = text; scroll(); return d; }
+  if (skip || speed === 0) {
+    if (text) d.textContent = text;
+    else d.innerHTML = "&nbsp;";
+    scroll();
+    return d;
+  }
   for (let i = 0; i < text.length; i++) {
     d.textContent += text[i];
     if (i % 4 === 0) scroll();
@@ -147,105 +252,175 @@ async function typeOut(text, cls = "", speed = 12) {
   return d;
 }
 
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-
-const link = (url, label) =>
-  `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
-
 const promptHTML = () =>
   `<span class="user">${esc(PROFILE.handle)}</span>` +
   `<span class="at">@</span><span class="host">${esc(PROFILE.host)}</span>` +
   `<span class="colon">:</span><span class="path">~</span>` +
   `<span class="sigil">$</span>`;
 
-function heading(text) { line(text, "section"); }
-
-function bar(level, width = 22) {
-  const filled = Math.round((level / 100) * width);
-  return `<span class="bar"><span class="fill">${"█".repeat(filled)}</span>` +
-         `<span class="empty">${"░".repeat(width - filled)}</span></span>`;
-}
+const heading = (text) => line(text, "section");
 
 /* --------------------------------------------------------------------------
-   Boot sequence
+   The "file system": output of `cat <file>`
    -------------------------------------------------------------------------- */
-let skip = REDUCED;
-let booting = true;
 
-function requestSkip() { skip = true; }
-
-const BOOT_LINES = [
-  ["[  OK  ] booting portfolio.sh",                    "dim"],
-  [`[  OK  ] mounting profile: ${PROFILE.name}`,       "dim"],
-  ["[  OK  ] loading modules: html css js",            "dim"],
-  ["[  OK  ] /dev/coffee ................ ready",      "dim"],
-];
-
-async function boot() {
-  document.addEventListener("keydown", requestSkip, { capture: true });
-  screenEl.addEventListener("pointerdown", requestSkip, { capture: true });
-
-  outEl.textContent = "";
-  for (const [text, cls] of BOOT_LINES) await typeOut(text, cls, 6);
-
-  line();
-  for (const l of BANNER) line(l, "ascii");
-  await sleep(skip ? 0 : 120);
-
-  await typeOut(`${PROFILE.name} — ${PROFILE.role}`, "accent bold", 8);
-  await typeOut(PROFILE.tagline, "", 8);
-  line();
-  await typeOut("This terminal is interactive. Type a command and hit Enter.", "dim", 6);
-  line("Try: help · about · projects · skills · contact · theme", "dim");
-  line("Keys: Tab completes, ↑/↓ history, Ctrl+L clears.", "dim");
-  line();
-
-  booting = false;
-  skip = REDUCED;
-  document.removeEventListener("keydown", requestSkip, { capture: true });
-  screenEl.removeEventListener("pointerdown", requestSkip, { capture: true });
-  focusInput();
+function viewPortfolio() {
+  raw(fileView("portfolio.txt", "-rw-r--r--  1 dylan  staff  1.2K", [
+    `<span class="accent bold">${esc(PROFILE.name.toUpperCase())}</span> <span class="dim">·</span> ${esc(PROFILE.role)}`,
+    `${esc(PROFILE.location)} · ${link(PROFILE.email, PROFILE.email)}`,
+    "",
+    `> ${esc(PROFILE.tagline)}`,
+    `> status: ${esc(PROFILE.status)}`,
+    "",
+    "sections:",
+    "  projects.txt   — what I've built",
+    "  about.txt      — who I am",
+    "  contact.txt    — how to reach me",
+    "",
+    "open:",
+    tBtn(1, "projects", "projects.html") +
+      tBtn(2, "about", "about.html") +
+      tBtn(3, "contact", "contact.html"),
+    `<span class="dim">…or type: open projects · cat projects.txt · help</span>`,
+  ]));
 }
+
+function viewProjects() {
+  const lines = [
+    `PROJECTS  <span class="dim">(${PROJECTS.length} selected)</span>`,
+    "",
+    ...PROJECTS.map((p) =>
+      `  <span class="accent bold">${esc(p.name)}</span> <span class="dim">${esc(p.year)}</span>  — ${esc(p.desc)}`),
+    "",
+    "open the full list:",
+    tBtn(1, "projects page", "projects.html"),
+    `<span class="dim">…or type: projects to see links right here</span>`,
+  ];
+  raw(fileView("projects.txt", "-rw-r--r--  1 dylan  staff  2.3K", lines));
+}
+
+function viewAbout() {
+  const lines = [
+    "ABOUT",
+    "",
+    ...PROFILE.bio,
+    "",
+    `<span class="accent bold">skills</span>  ` + SKILLS.map(
+      (s) => `${esc(s.name)} ${bar(s.level)} ${s.level}%`).join("  "),
+    "",
+    tBtn(1, "about page", "about.html") + tBtn(2, "contact", "contact.html"),
+  ];
+  raw(fileView("about.txt", "-rw-r--r--  1 dylan  staff  0.9K", lines));
+}
+
+function viewContact() {
+  const lines = [
+    "CONTACT",
+    "",
+    `email    ${link(PROFILE.email, PROFILE.email)}`,
+    ...PROFILE.socials
+      .filter((s) => s.url !== "mailto:" + PROFILE.email)
+      .map((s) => `${esc(s.label.toLowerCase().padEnd(9))}${link(s.url, stripScheme(s.url))}`),
+    "",
+    tBtn(1, "contact page", "contact.html"),
+  ];
+  raw(fileView("contact.txt", "-rw-r--r--  1 dylan  staff  0.4K", lines));
+}
+
+const FILES = {
+  "portfolio.txt": viewPortfolio,
+  "portfolio":     viewPortfolio,
+  "projects.txt":  viewProjects,
+  "projects":      viewProjects,
+  "about.txt":     viewAbout,
+  "about":         viewAbout,
+  "contact.txt":   viewContact,
+  "contact":       viewContact,
+};
 
 /* --------------------------------------------------------------------------
    Commands
    -------------------------------------------------------------------------- */
 
-/** Each command: { help, group, run(args) } */
 const COMMANDS = {
   help: {
     group: "core",
     help: "list available commands",
     run() {
-      const groups = {
-        about: ["about", "whoami", "skills", "experience"],
-        work:  ["projects", "resume"],
-        reach: ["contact", "socials"],
-        look:  ["banner", "neofetch", "themes", "theme"],
-        shell: ["clear", "history", "date", "echo", "ls", "pwd"],
-      };
       line("Available commands:", "accent bold");
       line();
-      const pad = (s) => s.padEnd(34, " ");
-      const render = (title, keys) => {
+      const pad = (s) => s.padEnd(30, " ");
+      const groups = {
+        explore: ["cat", "open", "projects", "about", "contact"],
+        fun:     ["whoami", "skills", "experience", "neofetch"],
+        look:    ["theme", "themes", "banner"],
+        shell:   ["clear", "history", "date", "echo", "ls", "pwd", "resume"],
+      };
+      for (const [title, keys] of Object.entries(groups)) {
         line(title, "dim");
         for (const k of keys) {
           if (COMMANDS[k]) line("  " + pad(k) + COMMANDS[k].help);
         }
         line();
-      };
-      render("about", groups.about);
-      render("work", groups.work);
-      render("reach", groups.reach);
-      render("appearance", groups.look);
-      render("shell", groups.shell);
-      line("Tip: Tab autocompletes. Some commands hide a surprise. 🙂", "dim");
+      }
+      line("Tip: Tab autocompletes, ↑/↓ scroll history, Ctrl+L clears.", "dim");
     },
   },
 
-  whoami: {
+  cat: {
     group: "core",
+    help: "print a section: cat <portfolio|projects|about|contact>.txt",
+    run(args) {
+      const name = (args.join(" ").trim() || "portfolio").toLowerCase();
+      const view = FILES[name];
+      if (view) { view(); return; }
+      line(`cat: ${args.join(" ")}: No such file or directory`, "err");
+      line("files: portfolio.txt  projects.txt  about.txt  contact.txt", "dim");
+    },
+  },
+
+  open: {
+    group: "core",
+    help: "open a page: open <projects|about|contact|home>",
+    run(args) {
+      const map = {
+        "index": "index.html", "home": "index.html", "portfolio": "index.html",
+        "projects": "projects.html", "about": "about.html", "contact": "contact.html",
+      };
+      const key = args.join(" ").trim().toLowerCase();
+      if (map[key]) {
+        line(`opening ${map[key]} …`, "dim");
+        window.setTimeout(() => { window.location.href = map[key]; }, 250);
+      } else {
+        line(`open: unknown target "${key}"`, "err");
+        line("try: open projects | open about | open contact", "dim");
+      }
+    },
+  },
+
+  projects: {
+    group: "core",
+    help: "list projects with links",
+    run() {
+      heading("projects");
+      if (!PROJECTS.length) { line("no projects yet — add some in main.js", "dim"); return; }
+      PROJECTS.forEach((p) => {
+        raw(`<span class="accent bold">${esc(p.name)}</span> <span class="dim">${esc(p.year)}</span>`);
+        line("  " + p.desc);
+        if (p.url && p.url !== "#") {
+          raw(`  <span class="dim">${esc(p.tags.join(" · "))}</span> → ${link(p.url, stripScheme(p.url))}`);
+        }
+        line();
+      });
+      line("→ see all: " + tBtn(1, "projects page", "projects.html"), "dim");
+    },
+  },
+
+  about: { group: "core", help: "cat about.txt", run() { viewAbout(); } },
+  contact: { group: "core", help: "cat contact.txt", run() { viewContact(); } },
+
+  whoami: {
+    group: "fun",
     help: "print name and role",
     run() {
       line(`${PROFILE.name} · ${PROFILE.role}`, "accent bold");
@@ -253,122 +428,46 @@ const COMMANDS = {
     },
   },
 
-  about: {
-    group: "core",
-    help: "short bio",
-    run() {
-      heading("about");
-      for (const l of PROFILE.bio) line(l);
-    },
-  },
-
   skills: {
-    group: "core",
-    help: "things I work with",
+    group: "fun",
+    help: "print skill bars",
     run() {
       heading("skills");
-      for (const s of SKILLS) {
-        raw(`${esc(s.name.padEnd(24, " "))} ${bar(s.level)} <span class="dim">${s.level}%</span>`);
-      }
+      SKILLS.forEach((s) =>
+        line(`${s.name.padEnd(24, " ")} ${bar(s.level)} ${s.level}%`));
     },
   },
 
   experience: {
-    group: "core",
-    help: "where I've worked",
+    group: "fun",
+    help: "work history",
     run() {
       heading("experience");
       EXPERIENCE.forEach((job, i) => {
         raw(`<span class="accent bold">${esc(job.role)}</span> <span class="dim">@</span> ${esc(job.org)}`);
         line(`  ${job.period}`, "dim");
-        for (const p of job.points) line(`  • ${p}`);
+        job.points.forEach((p) => line(`  • ${p}`));
         if (i < EXPERIENCE.length - 1) line();
       });
     },
   },
 
-  projects: {
-    group: "work",
-    help: "selected work",
-    run(args) {
-      if (args[0]) {
-        const p = PROJECTS.find(
-          (x) => x.name.toLowerCase().includes(args.join(" ").toLowerCase()));
-        if (!p) { line(`no project matching "${args.join(" ")}"`, "err"); return; }
-        line(p.name, "accent bold");
-        line(p.year + " · " + p.tags.join(", "), "dim");
-        line();
-        line(p.desc);
-        line();
-        line("→ " + p.url, "accent-2");
-        return;
-      }
-      heading("projects");
-      for (const p of PROJECTS) {
-        raw(`<span class="accent bold">${esc(p.name)}</span> <span class="dim">${esc(p.year)}</span>`);
-        line("  " + p.desc);
-        raw(`  <span class="dim">${esc(p.tags.join(" · "))}</span> → ${link(p.url, p.url.replace(/^https?:\/\//, ""))}`);
-        line();
-      }
-      line("Open one with: projects " + PROJECTS[0].name, "dim");
-    },
-  },
-
-  contact: {
-    group: "reach",
-    help: "how to reach me",
-    run() {
-      heading("contact");
-      raw(`email    ${link(PROFILE.email, PROFILE.email)}`);
-      for (const s of PROFILE.socials) raw(`${esc(s.label.toLowerCase().padEnd(9))}${link(s.url, s.url.replace(/^mailto:/, ""))}`);
-    },
-  },
-
-  socials: {
-    group: "reach",
-    help: "alias for contact",
-    run() { COMMANDS.contact.run(); },
-  },
-
-  resume: {
-    group: "work",
-    help: "get my CV",
-    run() {
-      if (!PROFILE.resume || PROFILE.resume === "#") {
-        line("no resume linked yet — set PROFILE.resume in main.js", "warn");
-        return;
-      }
-      line("Opening resume…", "dim");
-      window.open(PROFILE.resume, "_blank", "noopener");
-    },
-  },
-
-  banner: {
-    group: "look",
-    help: "print the logo again",
-    run() { for (const l of BANNER) line(l, "ascii"); },
-  },
-
   neofetch: {
-    group: "look",
-    help: "system-style summary",
+    group: "fun",
+    help: "system-style profile card",
     run() {
       const info = [
-        ["user",  `${PROFILE.handle}@${PROFILE.host}`],
-        ["role",  PROFILE.role],
-        ["base",  "HTML · CSS · JavaScript"],
-        ["shell", "vanilla.js"],
-        ["editor","whatever works"],
-        ["locale",PROFILE.location],
-        ["uptime",`${Math.round(performance.now() / 1000)}s`],
-        ["status",PROFILE.status],
+        ["user",   `${PROFILE.handle}@${PROFILE.host}`],
+        ["role",   PROFILE.role],
+        ["base",   "HTML · CSS · JavaScript"],
+        ["shell",  "vanilla.js"],
+        ["locale", PROFILE.location],
+        ["status", PROFILE.status],
       ];
-      const art = BANNER.map((l) => esc(l)).join("\n");
-      const rows = info
-        .map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+      const rows = info.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
       raw(
         `<div class="fetch">` +
-          `<pre class="fetch-art">${art}</pre>` +
+          `<pre class="fetch-art">${BANNER.map(esc).join("\n")}</pre>` +
           `<div class="fetch-info"><div class="accent bold">${esc(PROFILE.name)}</div>` +
           `<div class="dim">${"-".repeat(Math.max(12, PROFILE.name.length))}</div>` +
           `<dl class="kv">${rows}</dl></div>` +
@@ -377,12 +476,18 @@ const COMMANDS = {
     },
   },
 
+  banner: {
+    group: "look",
+    help: "print the ascii logo",
+    run() { BANNER.forEach((l) => line(l, "ascii")); },
+  },
+
   theme: {
     group: "look",
     help: "switch theme: theme <name>",
     run(args) {
       if (!args[0]) {
-        line(`current theme: ${root.getAttribute("data-theme")}`, "dim");
+        line(`current: ${document.documentElement.getAttribute("data-theme")}`, "dim");
         line(`run: theme ${THEMES.join(" | ")}`, "dim");
         return;
       }
@@ -396,16 +501,31 @@ const COMMANDS = {
     },
   },
 
-  themes: { group: "look", help: "list themes", run() { COMMANDS.theme.run([]); } },
+  themes: { group: "look", help: "alias for theme", run() { COMMANDS.theme.run([]); } },
 
-  clear: {
+  resume: {
     group: "shell",
-    help: "clear the screen",
-    run(args) {
-      if (args[0] === "-h") { line("clear -h  (just clears, there are no flags 😄)", "dim"); return; }
-      outEl.textContent = "";
+    help: "open my CV",
+    run() {
+      if (!PROFILE.resume || PROFILE.resume === "#") {
+        line("no resume linked yet — set PROFILE.resume in main.js", "warn");
+        return;
+      }
+      window.open(PROFILE.resume, "_blank", "noopener");
     },
   },
+
+  ls: {
+    group: "shell",
+    help: "list files",
+    run() {
+      line("portfolio.txt   about.txt   projects.txt   contact.txt   links/", "accent-2");
+    },
+  },
+
+  pwd: { group: "shell", help: "print working directory", run() { line(`/home/${PROFILE.handle}/portfolio`); } },
+  date: { group: "shell", help: "current date & time", run() { line(new Date().toString()); } },
+  echo: { group: "shell", help: "echo text back", run(args) { line(args.join(" ")); } },
 
   history: {
     group: "shell",
@@ -417,37 +537,16 @@ const COMMANDS = {
     },
   },
 
-  date: { group: "shell", help: "current date & time", run() { line(new Date().toString()); } },
-
-  echo: {
+  clear: {
     group: "shell",
-    help: "echo text back",
-    run(args) { line(args.join(" ")); },
+    help: "clear the screen",
+    run() { outEl.textContent = ""; },
   },
-
-  ls: {
-    group: "shell",
-    help: "list sections as files",
-    run() {
-      raw(
-        `<span class="accent-2">about.txt</span>   ` +
-        `<span class="accent-2">contact.json</span>   ` +
-        `<span class="accent-2">projects/</span>   ` +
-        `<span class="accent-2">skills.md</span>   ` +
-        `<span class="accent-2">resume.pdf</span>`
-      );
-    },
-  },
-
-  pwd: { group: "shell", help: "print working directory", run() { line(`/home/${PROFILE.handle}/portfolio`); } },
 
   /* ---------------------------- Easter eggs ---------------------------- */
   sudo: {
-    group: "hidden", help: "run a command as root",
-    run(args) {
-      if (!args.length) { line("usage: sudo <command>", "dim"); return; }
-      line(`${PROFILE.handle} is not in the sudoers file. This incident will be reported.`, "err");
-    },
+    group: "hidden", help: "run as root",
+    run() { line("dylan is not in the sudoers file. This incident will be reported.", "err"); },
   },
   rm: {
     group: "hidden", help: "remove files",
@@ -455,16 +554,11 @@ const COMMANDS = {
   },
   coffee: {
     group: "hidden", help: "brew coffee",
-    run() {
-      line("HTTP 418: I'm a teapot.", "err");
-      line("...but I do run on coffee. ☕", "dim");
-    },
+    run() { line("HTTP 418: I'm a teapot.", "err"); line("...but I do run on coffee. ☕", "dim"); },
   },
   exit: {
     group: "hidden", help: "leave the terminal",
-    run() {
-      line("There's no escape. (Try closing the tab.)", "dim");
-    },
+    run() { line("There's no escape. Try closing the tab.", "dim"); },
   },
 };
 
@@ -475,19 +569,20 @@ let history = [];
 let histIndex = -1;
 let draft = "";
 let busy = false;
+let skip = REDUCED;
+let booting = false;
 
 function echoPrompt(text) {
   raw(`<span class="prompt-echo">${promptHTML()} <span class="cmd">${esc(text)}</span></span>`);
 }
 
-async function run(rawText) {
+async function run(rawText, { echo = true, save = true } = {}) {
   const text = rawText.trim();
-  echoPrompt(rawText);
+  if (echo) echoPrompt(rawText);
 
   if (!text) return;
 
-  history.push(text);
-  histIndex = history.length;
+  if (save) { history.push(text); histIndex = history.length; }
   draft = "";
 
   const parts = text.split(/\s+/);
@@ -507,17 +602,38 @@ async function run(rawText) {
 }
 
 /* --------------------------------------------------------------------------
-   Themes
+   Terminal boot
    -------------------------------------------------------------------------- */
-function setTheme(name, announce) {
-  root.setAttribute("data-theme", name);
-  try { localStorage.setItem("portfolio-theme", name); } catch (_) {}
-  if (announce) line(`theme → ${name}`, "accent");
-}
-function cycleTheme() {
-  const cur = root.getAttribute("data-theme");
-  const next = THEMES[(THEMES.indexOf(cur) + 1) % THEMES.length];
-  setTheme(next, true);
+function requestSkip() { skip = true; }
+
+async function boot() {
+  booting = true;
+  document.addEventListener("keydown", requestSkip, { capture: true });
+  screenEl.addEventListener("pointerdown", requestSkip, { capture: true });
+
+  outEl.textContent = "";
+
+  await typeOut("[  OK  ] mounting pages: about · projects · contact", "dim", 5);
+  await typeOut("[  OK  ] attaching navbar ................ done", "dim", 5);
+  await typeOut("[  OK  ] /dev/coffee ................. ready", "dim", 5);
+  line();
+
+  BANNER.forEach((l) => line(l, "ascii"));
+  await sleep(skip ? 0 : 100);
+  await typeOut(`${PROFILE.name} — ${PROFILE.role}`, "accent bold", 7);
+  await typeOut(PROFILE.tagline, "", 7);
+  line();
+  await typeOut("This terminal is interactive. Type a command and hit Enter.", "dim", 5);
+  line();
+
+  booting = false;
+  skip = REDUCED;
+  document.removeEventListener("keydown", requestSkip, { capture: true });
+  screenEl.removeEventListener("pointerdown", requestSkip, { capture: true });
+
+  // The main event: run `cat portfolio.txt` so the buttons appear right away.
+  await run("cat portfolio.txt", { save: false });
+  focusInput();
 }
 
 /* --------------------------------------------------------------------------
@@ -526,7 +642,7 @@ function cycleTheme() {
 function focusInput() {
   try { inputEl.focus({ preventScroll: true }); } catch (_) { inputEl.focus(); }
 }
-function renderEntry() { entryEl.textContent = inputEl.value; }
+function renderEntry() { document.getElementById("entryText").textContent = inputEl.value; }
 
 formEl.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -571,7 +687,12 @@ inputEl.addEventListener("keydown", (e) => {
     renderEntry();
     return;
   }
-  if (e.ctrlKey && e.key.toLowerCase() === "l") { e.preventDefault(); outEl.textContent = ""; line(); return; }
+  if (e.ctrlKey && e.key.toLowerCase() === "l") {
+    e.preventDefault();
+    outEl.textContent = "";
+    line();
+    return;
+  }
   if (e.ctrlKey && e.key.toLowerCase() === "c") {
     e.preventDefault();
     echoPrompt(inputEl.value + "^C");
@@ -587,7 +708,6 @@ function complete() {
   const value = inputEl.value;
   const parts = value.split(/\s+/);
 
-  // completing a theme argument
   if (parts.length === 2 && parts[0].toLowerCase() === "theme") {
     const m = THEMES.filter((t) => t.startsWith(parts[1].toLowerCase()));
     if (m.length === 1) { inputEl.value = `theme ${m[0]}`; renderEntry(); }
@@ -600,17 +720,11 @@ function complete() {
   const matches = Object.keys(COMMANDS).filter(
     (c) => COMMANDS[c].group !== "hidden" && c.startsWith(frag));
 
-  if (matches.length === 1) {
-    inputEl.value = matches[0] + " ";
-    renderEntry();
-  } else if (matches.length > 1) {
-    echoPrompt(value);
-    line(matches.join("  "), "dim");
-    line();
-  }
+  if (matches.length === 1) { inputEl.value = matches[0] + " "; renderEntry(); }
+  else if (matches.length > 1) { echoPrompt(value); line(matches.join("  "), "dim"); line(); }
 }
 
-/* Focus management: click anywhere on the screen to type. */
+/* Focus: click anywhere in the screen to type. */
 screenEl.addEventListener("click", (e) => {
   if (e.target.closest("a, button")) return;
   const sel = window.getSelection();
@@ -619,9 +733,7 @@ screenEl.addEventListener("click", (e) => {
 });
 
 inputEl.addEventListener("focus", () => screenEl.classList.add("focused"));
-inputEl.addEventListener("blur",  () => screenEl.classList.remove("focused"));
-
-themeBtn.addEventListener("click", (e) => { e.stopPropagation(); cycleTheme(); focusInput(); });
+inputEl.addEventListener("blur", () => screenEl.classList.remove("focused"));
 
 document.addEventListener("keydown", (e) => {
   if (booting) return;
@@ -631,19 +743,37 @@ document.addEventListener("keydown", (e) => {
 });
 
 /* --------------------------------------------------------------------------
-   Init
+   Init (every page)
    -------------------------------------------------------------------------- */
 (function init() {
+  // theme
   try {
     const saved = localStorage.getItem("portfolio-theme");
-    if (saved && THEMES.includes(saved)) root.setAttribute("data-theme", saved);
+    if (saved && THEMES.includes(saved)) {
+      document.documentElement.setAttribute("data-theme", saved);
+    }
   } catch (_) {}
 
-  const base = PROFILE.handle + "@" + PROFILE.host;
-  titleEl.textContent = `${base}: ~ — ${PROFILE.role}`;
+  const themeBtn = document.getElementById("themebtn");
+  if (themeBtn) themeBtn.addEventListener("click", cycleTheme);
 
-  root.setAttribute("data-theme", root.getAttribute("data-theme") || "matrix");
+  // footer year
+  const year = document.getElementById("year");
+  if (year) year.textContent = new Date().getFullYear();
 
-  window.addEventListener("load", () => { screenEl.classList.add("focused"); });
-  boot();
+  // page-specific rendering
+  renderAbout();
+  renderProjects();
+  renderContact();
+
+  // terminal (only on the home page)
+  if (TERMINAL && outEl && screenEl && formEl && inputEl) {
+    const title = document.getElementById("title");
+    if (title) title.textContent = `${PROFILE.handle}@${PROFILE.host}: ~ — ${PROFILE.role}`;
+
+    window.addEventListener("load", () => {
+      screenEl.classList.add("focused");
+      boot();
+    });
+  }
 })();
