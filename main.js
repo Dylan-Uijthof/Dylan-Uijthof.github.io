@@ -88,7 +88,6 @@ const BANNER = [
   "|____/    |_|  |_____| /_/   \\_\\|_| \\_|",
 ];
 
-const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const TERMINAL = document.getElementById("terminal");
 
 /* --------------------------------------------------------------------------
@@ -203,7 +202,6 @@ function renderContact() {
 /* --------------------------------------------------------------------------
    Output helpers (terminal pages only)
    -------------------------------------------------------------------------- */
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const outEl    = document.getElementById("out");
 const screenEl = document.getElementById("screen");
 const formEl   = document.getElementById("form");
@@ -232,26 +230,6 @@ function raw(html, cls = "") {
   return d;
 }
 
-/** Type text out character by character (honours skip / reduced motion). */
-async function typeOut(text, cls = "", speed = 12) {
-  const d = line("", cls);
-  if (skip || speed === 0) {
-    if (text) d.textContent = text;
-    else d.innerHTML = "&nbsp;";
-    scroll();
-    return d;
-  }
-  for (let i = 0; i < text.length; i++) {
-    d.textContent += text[i];
-    if (i % 4 === 0) scroll();
-    await sleep(speed);
-    if (skip) { d.textContent = text; break; }
-  }
-  if (text === "") d.innerHTML = "&nbsp;";
-  scroll();
-  return d;
-}
-
 const promptHTML = () =>
   `<span class="user">${esc(PROFILE.handle)}</span>` +
   `<span class="at">@</span><span class="host">${esc(PROFILE.host)}</span>` +
@@ -264,24 +242,30 @@ const heading = (text) => line(text, "section");
    The "file system": output of `cat <file>`
    -------------------------------------------------------------------------- */
 
+/* One project, printed as a clickable line: name → url */
+function projectLine(p, i) {
+  const name = p.url && p.url !== "#"
+    ? link(p.url, p.name)
+    : `<span class="accent bold">${esc(p.name)}</span>`;
+  const tags = p.tags.length ? ` <span class="dim">· ${esc(p.tags.join(", "))}</span>` : "";
+  return `  <span class="accent bold">[${i + 1}]</span>  ${name}  <span class="dim">${esc(p.year)}</span>${tags}`;
+}
+
 function viewPortfolio() {
-  raw(fileView("portfolio.txt", "-rw-r--r--  1 dylan  staff  1.2K", [
+  raw(fileView("portfolio.txt", "-rw-r--r--  1 dylan  staff  1.6K", [
     `<span class="accent bold">${esc(PROFILE.name.toUpperCase())}</span> <span class="dim">·</span> ${esc(PROFILE.role)}`,
     `${esc(PROFILE.location)} · ${link(PROFILE.email, PROFILE.email)}`,
     "",
     `> ${esc(PROFILE.tagline)}`,
-    `> status: ${esc(PROFILE.status)}`,
     "",
-    "sections:",
-    "  projects.txt   — what I've built",
-    "  about.txt      — who I am",
-    "  contact.txt    — how to reach me",
+    "projects (click a name to open it):",
+    ...PROJECTS.map(projectLine),
     "",
-    "open:",
+    "pages:",
     tBtn(1, "projects", "projects.html") +
       tBtn(2, "about", "about.html") +
       tBtn(3, "contact", "contact.html"),
-    `<span class="dim">…or type: open projects · cat projects.txt · help</span>`,
+    `<span class="dim">…or type: open projects · cat about.txt · help</span>`,
   ]));
 }
 
@@ -289,12 +273,11 @@ function viewProjects() {
   const lines = [
     `PROJECTS  <span class="dim">(${PROJECTS.length} selected)</span>`,
     "",
-    ...PROJECTS.map((p) =>
-      `  <span class="accent bold">${esc(p.name)}</span> <span class="dim">${esc(p.year)}</span>  — ${esc(p.desc)}`),
+    ...PROJECTS.map(projectLine),
     "",
     "open the full list:",
     tBtn(1, "projects page", "projects.html"),
-    `<span class="dim">…or type: projects to see links right here</span>`,
+    `<span class="dim">…or type: projects to see them right here</span>`,
   ];
   raw(fileView("projects.txt", "-rw-r--r--  1 dylan  staff  2.3K", lines));
 }
@@ -569,7 +552,6 @@ let history = [];
 let histIndex = -1;
 let draft = "";
 let busy = false;
-let skip = REDUCED;
 let booting = false;
 
 function echoPrompt(text) {
@@ -602,37 +584,13 @@ async function run(rawText, { echo = true, save = true } = {}) {
 }
 
 /* --------------------------------------------------------------------------
-   Terminal boot
+   Terminal boot — no animation, straight to `cat portfolio.txt`
    -------------------------------------------------------------------------- */
-function requestSkip() { skip = true; }
-
-async function boot() {
+function boot() {
   booting = true;
-  document.addEventListener("keydown", requestSkip, { capture: true });
-  screenEl.addEventListener("pointerdown", requestSkip, { capture: true });
-
   outEl.textContent = "";
-
-  await typeOut("[  OK  ] mounting pages: about · projects · contact", "dim", 5);
-  await typeOut("[  OK  ] attaching navbar ................ done", "dim", 5);
-  await typeOut("[  OK  ] /dev/coffee ................. ready", "dim", 5);
-  line();
-
-  BANNER.forEach((l) => line(l, "ascii"));
-  await sleep(skip ? 0 : 100);
-  await typeOut(`${PROFILE.name} — ${PROFILE.role}`, "accent bold", 7);
-  await typeOut(PROFILE.tagline, "", 7);
-  line();
-  await typeOut("This terminal is interactive. Type a command and hit Enter.", "dim", 5);
-  line();
-
+  run("cat portfolio.txt", { save: false });
   booting = false;
-  skip = REDUCED;
-  document.removeEventListener("keydown", requestSkip, { capture: true });
-  screenEl.removeEventListener("pointerdown", requestSkip, { capture: true });
-
-  // The main event: run `cat portfolio.txt` so the buttons appear right away.
-  await run("cat portfolio.txt", { save: false });
   focusInput();
 }
 
