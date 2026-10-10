@@ -1,0 +1,40 @@
+{
+  "projects": [
+    {
+      "slug": "terminal-portfolio",
+      "file": "terminal-portfolio.md",
+      "title": "Terminal Portfolio",
+      "summary": "A keyboard-first portfolio with a working shell, fuzzy file tree and five switchable themes.",
+      "date": "2026-03",
+      "tags": ["JavaScript", "CSS", "Accessibility"],
+      "featured": true
+    },
+    {
+      "slug": "markdown-project-pages",
+      "file": "markdown-project-pages.md",
+      "title": "Markdown Project Pages",
+      "summary": "How this site renders every project from a plain .md file while keeping one shared navbar and footer.",
+      "date": "2026-02",
+      "tags": ["JavaScript", "Markdown", "GitHub Pages"],
+      "featured": true
+    },
+    {
+      "slug": "habit-cli",
+      "file": "habit-cli.md",
+      "title": "habit — a tiny habit tracker",
+      "summary": "A zero-config command line habit tracker that keeps its state in a single JSON file.",
+      "date": "2025-11",
+      "tags": ["Node.js", "CLI", "TypeScript"],
+      "featured": true
+    },
+    {
+      "slug": "reading-list-api",
+      "file": "reading-list-api.md",
+      "title": "Reading List API",
+      "summary": "A small REST API for tracking what you're reading, with optimistic deletes and offline sync.",
+      "date": "2025-08",
+      "tags": ["Node.js", "Postgres", "REST"],
+      "featured": false
+    }
+  ]
+}

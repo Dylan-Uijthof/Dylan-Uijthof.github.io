@@ -1,74 +1,110 @@
-# Portfolio — multi-page + terminal
+# Dylan Uijthof — portfolio
 
-A small static portfolio: **pure HTML + CSS + JavaScript**, zero dependencies, no
-build step. There's a simple navbar, a few regular pages, and an interactive
-**terminal on the home page** that behaves like a file system — type
-`cat portfolio.txt` and it prints clickable buttons that open your projects and
-the other pages.
+A small, dependency-free portfolio. Plain **HTML, CSS and JavaScript** on
+[GitHub Pages](https://pages.github.com/), with each project written as a
+**Markdown** file and rendered inside a normal page — so the navbar and footer
+are the same everywhere.
+
+## Layout
 
 ```
-home (terminal)  →  projects  →  about  →  contact
+.
+├── index.html               Home
+├── projects.html            All projects (with tag filters)
+├── project.html             Renders a single Markdown file (?p=slug)
+├── about.html               About
+├── contact.html             Contact
+├── 404.html                 GitHub Pages not-found page
+├── assets/
+│   ├── style.css            All the styling (light + dark)
+│   ├── main.js              Navbar, theme, project loading  ← edit CONFIG here
+│   ├── markdown.js          Self-contained Markdown → HTML renderer
+│   └── img/                 Images used by project pages
+├── projects/
+│   ├── projects.json        The project index (the "manifest")
+│   └── *.md                 One Markdown file per project
+└── .nojekyll                Tells GitHub Pages to leave files alone
 ```
 
-## Try it
+## Adding a project
 
-Open `index.html` in a browser (or `python3 -m http.server`). The home page
-boots a terminal and **automatically runs `cat portfolio.txt`**, which shows
-buttons for the other pages. Command examples:
+1. Create `projects/my-project.md`:
 
-| Command | What it does |
-|---------|--------------|
-| `cat portfolio.txt` | the main portfolio file with page buttons |
-| `cat projects.txt` / `about.txt` / `contact.txt` | other sections |
-| `open projects` / `open about` / `open contact` | navigate to a page |
-| `projects` | list your projects with links |
-| `help` | full command list |
-| `theme` | cycle 5 built-in color schemes |
-| `clear` | clear the terminal |
+   ```markdown
+   ---
+   title: My Project
+   date: 2026-04
+   tags: [JavaScript, CSS]
+   summary: One sentence for the card on the projects page.
+   ---
 
-**Keys:** `Tab` autocompletes · `↑`/`↓` command history · `Ctrl+L` clears ·
-`Ctrl+C` cancels. Click anywhere in the terminal to type.
+   # My Project
 
-## Pages
+   Write the write-up in normal Markdown…
+   ```
 
-- `index.html` — hero + the interactive terminal
-- `projects.html` — project cards (filled from `main.js`)
-- `about.html` — bio + animated skill bars
-- `contact.html` — email + social links
-- `style.css` — themes + all styling
-- `main.js` — content + terminal engine + page rendering
+2. Add an entry to `projects/projects.json`:
 
-## Edit the content
+   ```json
+   {
+     "slug": "my-project",
+     "file": "my-project.md",
+     "title": "My Project",
+     "summary": "One sentence for the card on the projects page.",
+     "date": "2026-04",
+     "tags": ["JavaScript", "CSS"],
+     "featured": true
+   }
+   ```
 
-Everything lives in the **`CONFIG`** block at the top of [`main.js`](main.js):
+   - `slug` becomes the URL: `project.html?p=my-project`
+   - `featured: true` shows it on the home page.
+   - `file` is optional — it defaults to `<slug>.md`.
 
-```js
-const PROFILE   = { name, role, tagline, bio, socials, resume, ... };
-const PROJECTS  = [ { name, year, desc, tags, url }, ... ];  // → projects.html
-const SKILLS    = [ { name, level }, ... ];                   // level 0–100
-const EXPERIENCE= [ { role, org, period, points }, ... ];
+That's it. The projects page reads the manifest and builds the cards; the
+Markdown is fetched and rendered when you open a project.
+
+## Supported Markdown
+
+Headings (with anchor links), **bold**, *italic*, ~~strikethrough~~, `inline
+code`, links, images, fenced code blocks (with a copy button), blockquotes,
+ordered / unordered / nested lists, task lists, tables with alignment, and
+horizontal rules. Front matter (`---` block) supplies the title, date, tags and
+summary.
+
+## Editing your details
+
+- **Name, email, social links, role:** the `CONFIG` block at the top of
+  `assets/main.js`, plus the header/footer markup in each `.html` file.
+- **Colors and spacing:** the design tokens at the top of `assets/style.css`.
+- **About page copy and skills:** `about.html`.
+
+## Previewing locally
+
+`fetch()` is blocked when you open the files directly from disk
+(`file://`), so run a tiny local server:
+
+```bash
+# from the repository root
+python3 -m http.server 8000
+# then open http://localhost:8000
 ```
 
-Edit those arrays and all pages + the terminal update at once — single source of
-truth.
+## Deploying
 
-## Themes
+The site is served straight from the default branch by GitHub Pages. Commit and
+push — that's the deploy:
 
-Themes are named CSS variable blocks in `style.css`. Five are built in:
-`matrix` (default), `dracula`, `nord`, `amber`, `paper`. Add your own by adding
-`[data-theme="name"] { --bg: …; --accent: …; }` to `style.css` and the name to
-the `THEMES` array in `main.js`. The choice is saved in `localStorage`.
-
-## Deploy on GitHub Pages
-
-```sh
-git add -A
-git commit -m "Add portfolio"
-git push origin main
+```bash
+git add .
+git commit -m "Update portfolio"
+git push
 ```
 
-Visit `https://dylan-uijthof.github.io`.
+## Notes
 
-## License
-
-[MIT](LICENSE)
+- Image paths inside a Markdown file are resolved relative to the **page**
+  (`project.html` at the site root), not the Markdown file. Use
+  `assets/img/foo.png`, not `../assets/img/foo.png`.
+- Keep slugs lowercase with hyphens; they appear in the URL.
+- There is no build step, no bundler and no dependencies.

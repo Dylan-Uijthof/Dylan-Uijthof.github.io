@@ -1,84 +1,120 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="matrix">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dylan Uijthof — Portfolio</title>
-  <meta name="description" content="Portfolio of Dylan Uijthof. Open a terminal, type 'cat portfolio.txt'.">
-  <meta name="color-scheme" content="dark light">
+  <title>Dylan Uijthof — Full-Stack Developer</title>
+  <meta name="description" content="Portfolio of Dylan Uijthof, full-stack developer. Projects, writing and contact.">
+  <meta name="color-scheme" content="light dark">
 
-  <meta property="og:title" content="Dylan Uijthof — Portfolio">
-  <meta property="og:description" content="Type 'cat portfolio.txt' to open my work.">
   <meta property="og:type" content="website">
+  <meta property="og:title" content="Dylan Uijthof — Full-Stack Developer">
+  <meta property="og:description" content="Projects, writing and contact.">
+  <meta name="twitter:card" content="summary">
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23050806'/%3E%3Ctext x='6' y='23' font-family='monospace' font-size='16' fill='%2300ff9c'%3E%3E_%3C/text%3E%3C/svg%3E">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2315181e'/%3E%3Ctext x='16' y='22' font-family='sans-serif' font-size='15' font-weight='700' text-anchor='middle' fill='%23ffffff'%3EDU%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+  <script>
+    /* Set the theme before first paint to avoid a flash of the wrong colours. */
+    (function () {
+      try {
+        var t = localStorage.getItem('du-theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t;
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
 </head>
 <body data-page="home">
 
-  <header class="nav">
-    <a class="nav-brand" href="index.html"><span class="brand-sigil">&gt;</span> dylan</a>
-    <nav class="nav-links" aria-label="Main">
-      <a href="index.html" class="active">home</a>
-      <a href="projects.html">projects</a>
-      <a href="about.html">about</a>
-      <a href="contact.html">contact</a>
-    </nav>
-    <button class="themebtn" id="themebtn" type="button" aria-label="Switch theme" title="Cycle theme">theme</button>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">DU</span>
+        <span class="brand-text">Dylan Uijthof</span>
+      </a>
+
+      <nav class="site-nav" id="siteNav" aria-label="Primary">
+        <a href="index.html" data-nav="home">Home</a>
+        <a href="projects.html" data-nav="projects">Projects</a>
+        <a href="about.html" data-nav="about">About</a>
+        <a href="contact.html" data-nav="contact">Contact</a>
+      </nav>
+
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme" aria-pressed="false" title="Toggle theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+
+      <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation" aria-controls="siteNav" aria-expanded="false">
+        <span></span>
+      </button>
+    </div>
   </header>
 
-  <main class="page page-home">
-    <section class="hero">
-      <h1>Dylan Uijthof</h1>
-      <p class="lede">Full-Stack Developer</p>
-      <p class="sub">I build fast, accessible things for the web.</p>
-      <p class="hint">Try typing <code>cat portfolio.txt</code> below</p>
-    </section>
+  <main id="main" class="page">
+    <div class="wrap">
 
-    <section class="term-wrap">
-      <div class="terminal" id="terminal">
-        <header class="titlebar">
-          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="title" id="title">dylan@portfolio: ~</span>
-          <span class="titlebar-note">type <code>help</code></span>
-        </header>
-
-        <div class="screen" id="screen" tabindex="-1">
-          <div class="out" id="out" role="log" aria-live="polite" aria-label="Terminal output"></div>
-
-          <form class="promptline" id="form" autocomplete="off">
-            <label class="prompt" for="entry" id="prompt">
-              <span class="user">dylan</span><span class="at">@</span><span class="host">portfolio</span><span class="colon">:</span><span class="path">~</span><span class="sigil">$</span>
-            </label>
-            <span class="entrywrap">
-              <span class="entry" id="entryText"></span><span class="caret" id="caret" aria-hidden="true"></span>
-              <input class="realinput" id="entry" type="text" name="cmd"
-                     autocapitalize="off" autocorrect="off" autocomplete="off"
-                     spellcheck="false" aria-label="Type a command and press Enter">
-            </span>
-          </form>
+      <section class="hero">
+        <p class="eyebrow">Portfolio</p>
+        <h1>Dylan Uijthof</h1>
+        <p class="role">Full-Stack <b>Developer</b></p>
+        <p class="tagline">I build fast, accessible products for the web — from first sketch to shipped. Below are a few things I'm proud of.</p>
+        <p class="hero-status"><span class="status-pill">Open to opportunities</span></p>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="projects.html">View projects</a>
+          <a class="btn btn-ghost" href="contact.html">Get in touch</a>
         </div>
-      </div>
-    </section>
+      </section>
+
+      <section class="section" aria-labelledby="featured-title">
+        <div class="section-head">
+          <h2 id="featured-title">Featured projects</h2>
+          <a class="more" href="projects.html">All projects &rarr;</a>
+        </div>
+        <ul class="grid" id="featured-projects">
+          <li class="empty-state">Loading projects&hellip;</li>
+        </ul>
+      </section>
+
+      <section class="section" aria-labelledby="about-title">
+        <div class="section-head">
+          <h2 id="about-title">A little about me</h2>
+          <a class="more" href="about.html">More &rarr;</a>
+        </div>
+        <div class="prose">
+          <p>
+            I'm a developer who likes turning fuzzy ideas into products people actually use.
+            I care about performance, accessibility, and writing code the next person can read.
+          </p>
+          <p>
+            This site is intentionally simple: plain HTML, CSS and JavaScript — no framework,
+            no build step. Project write-ups live as <strong>Markdown</strong> files and are rendered
+            right here in the page.
+          </p>
+        </div>
+      </section>
+
+    </div>
   </main>
 
-  <footer class="foot">
-    © <span id="year">2026</span> Dylan Uijthof · built with pure html/css/js
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p><span class="footer-brand">Dylan Uijthof</span></p>
+      <ul class="footer-links">
+        <li><a href="https://github.com/Dylan-Uijthof" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="mailto:dylanuijthof07@gmail.com">Email</a></li>
+      </ul>
+      <p class="footer-note">&copy; <span data-year>2026</span> Dylan Uijthof &middot; Built with plain HTML, CSS &amp; JS</p>
+    </div>
   </footer>
 
-  <noscript>
-    <div class="noscript">
-      <h1>Dylan Uijthof</h1>
-      <p>This portfolio uses a terminal that needs JavaScript.
-         Reach me at <a href="mailto:dylanuijthof07@gmail.com">dylanuijthof07@gmail.com</a>.</p>
-    </div>
-  </noscript>
-
-  <script src="main.js"></script>
+  <script src="assets/main.js"></script>
 </body>
 </html>
