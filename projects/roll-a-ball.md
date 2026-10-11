@@ -6,6 +6,8 @@ Een klein 3D-spel in Unity, gemaakt aan de hand van de Unity-tutorial Roll-a-bal
 
 Dit is een tutorialproject en geen eigen ontwerp. Het was voor mij het project waarin ik leerde hoe een game-engine werkt, en dat staat hieronder.
 
+![in engine screenshot](assets/img/roll-a-ball.png)
+
 ### Wat ik ervan geleerd heb
 
 - **De spelloop: `Start` en `Update`.** `Start` draait één keer aan het begin om dingen op te zetten, `Update` elk frame. Ik leerde ook dat er varianten zijn met een eigen moment: `FixedUpdate` voor natuurkunde (een vaste tijdstap) en `LateUpdate` voor dingen die pas moeten bewegen als al het andere klaar is, zoals de camera.
