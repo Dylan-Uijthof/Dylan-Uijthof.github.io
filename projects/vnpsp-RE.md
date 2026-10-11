@@ -1,4 +1,4 @@
-## vnpsp: een VNDS-interpreter voor de Sony PSP
+## vnpsp-RE: een VNDS-interpreter voor de Sony PSP
 
 Een interpreter voor VNDS-scripts (visual novels van de Nintendo DS) die draait op de PSP. Geschreven in C++ met pspsdk. Mijn eerste echte project. Dit project staat onder mijn alt-account Hermes-Digital, omdat ik het publiek wilde releasen zonder mijn echte naam eraan te koppelen.
 
