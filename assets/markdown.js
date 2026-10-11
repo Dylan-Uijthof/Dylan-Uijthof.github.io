@@ -267,7 +267,7 @@
       if (task) {
         var checked = task[1].toLowerCase() === 'x';
         out += '<li class="task"><input type="checkbox" disabled' + (checked ? ' checked' : '') +
-          ' aria-label="' + (checked ? 'done' : 'todo') + '"> <span>' +
+          ' aria-label="' + (checked ? 'gedaan' : 'te doen') + '"> <span>' +
           inlineLines([task[2]].concat(extra)) + '</span></li>';
       } else {
         out += '<li>' + inlineLines([content].concat(extra)) + '</li>';

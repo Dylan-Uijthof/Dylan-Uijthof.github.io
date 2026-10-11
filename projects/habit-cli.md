@@ -1,49 +1,50 @@
 ---
-title: habit — a tiny habit tracker
+title: habit — een kleine gewoontetracker
 date: 2025-11
 tags: [Node.js, CLI, TypeScript]
-summary: A zero-config command line habit tracker that keeps its state in a single JSON file.
+summary: Een gewoontetracker voor de opdrachtregel zonder configuratie, die zijn status in één JSON-bestand bewaart.
 ---
 
 # habit
 
-A command line habit tracker that does one thing: helps you tick the box every
-day. No account, no sync server, no telemetry — just a binary and a JSON file in
-your home directory.
+Een gewoontetracker voor de opdrachtregel die één ding doet: je helpen het vakje
+elke dag aan te vinken. Geen account, geen synchronisatieserver, geen telemetrie —
+alleen een binary en een JSON-bestand in je home-map.
 
-## The pitch
+## De pitch
 
 ```
-$ habit add "read 20 pages"
-Added: read 20 pages
+$ habit add "20 pagina's lezen"
+Toegevoegd: 20 pagina's lezen
 
-$ habit done read
-✓ read 20 pages        streak: 12 days
+$ habit done lezen
+✓ 20 pagina's lezen    reeks: 12 dagen
 
 $ habit
-TODAY
-  [x] read 20 pages        12 day streak
-  [ ] stretch               3 day streak
-  [ ] write                 0 day streak
+VANDAAG
+  [x] 20 pagina's lezen        reeks van 12 dagen
+  [ ] strekken                 reeks van 3 dagen
+  [ ] schrijven                reeks van 0 dagen
 ```
 
-## Design goals
+## Ontwerpdoelen
 
-1. **Instant.** Every command returns in under 100 ms, even with years of data.
-2. **Portable.** The entire state is `~/.habit/store.json` — back it up by
-   copying the file.
-3. **Forgiving.** Streaks survive a missed day when you mark it as a rest day.
+1. **Direct.** Elk commando komt binnen 100 ms terug, zelfs met jaren aan data.
+2. **Draagbaar.** De hele status is `~/.habit/store.json` — back-up maken is het
+   bestand kopiëren.
+3. **Vergevensgezind.** Reeksen overleven een gemiste dag als je die als rustdag
+   markeert.
 
-## Data model
+## Datamodel
 
-The store is intentionally boring:
+De opslag is bewust saai:
 
 ```json
 {
   "habits": [
     {
-      "id": "read",
-      "label": "read 20 pages",
+      "id": "lezen",
+      "label": "20 pagina's lezen",
       "created": "2025-11-02",
       "history": ["2025-11-02", "2025-11-03", "2025-11-05"]
     }
@@ -51,7 +52,7 @@ The store is intentionally boring:
 }
 ```
 
-Streaks are derived, never stored — so they can't drift out of sync:
+Reeksen worden afgeleid, nooit opgeslagen — dus ze kunnen niet uit de pas lopen:
 
 ```ts
 export function currentStreak(days: string[], today = iso(new Date())): number {
@@ -67,26 +68,26 @@ export function currentStreak(days: string[], today = iso(new Date())): number {
 }
 ```
 
-> Derive state, don't duplicate it. The only thing worse than no cache is a
-> cache nobody remembers to invalidate.
+> Leid status af, dupliceer hem niet. Het enige dat erger is dan geen cache, is een
+> cache die niemand meer invalideert.
 
-## Features
+## Functies
 
-- [x] Add, complete and archive habits
-- [x] Streaks and longest-streak stats
-- [x] Rest days that don't break a streak
-- [x] Weekly and monthly summaries
-- [ ] Reminders via OS notifications
+- [x] Gewoontes toevoegen, afvinken en archiveren
+- [x] Reeksen en records van de langste reeks
+- [x] Rustdagen die een reeks niet verbreken
+- [x] Wekelijkse en maandelijkse overzichten
+- [ ] Herinneringen via meldingen van het besturingssysteem
 
-## Numbers
+## Cijfers
 
-| Metric            | Value                    |
-| ----------------- | ------------------------ |
-| Cold start        | **42 ms**                |
-| Binary size       | ~1.8 MB (Bun-compiled)   |
-| Dependencies      | `commander`, `picocolors`|
-| Lines of code     | ~700                     |
+| Metriek          | Waarde                        |
+| ---------------- | ----------------------------- |
+| Koude start      | **42 ms**                     |
+| Grootte binary   | ~1,8 MB (gecompileerd met Bun)|
+| Dependencies     | `commander`, `picocolors`     |
+| Regels code      | ~700                          |
 
 ---
 
-*Small tools should feel instant. That's the whole product.*
+*Kleine tools moeten direct aanvoelen. Dat is het hele product.*

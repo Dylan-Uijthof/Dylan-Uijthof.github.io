@@ -3,17 +3,17 @@
     {
       "slug": "terminal-portfolio",
       "file": "terminal-portfolio.md",
-      "title": "Terminal Portfolio",
-      "summary": "A keyboard-first portfolio with a working shell, fuzzy file tree and five switchable themes.",
+      "title": "Terminalportfolio",
+      "summary": "Een portfolio dat je met het toetsenbord bedient, met een werkende shell, fuzzy bestandsboom en vijf wisselbare thema's.",
       "date": "2026-03",
-      "tags": ["JavaScript", "CSS", "Accessibility"],
+      "tags": ["JavaScript", "CSS", "Toegankelijkheid"],
       "featured": true
     },
     {
       "slug": "markdown-project-pages",
       "file": "markdown-project-pages.md",
-      "title": "Markdown Project Pages",
-      "summary": "How this site renders every project from a plain .md file while keeping one shared navbar and footer.",
+      "title": "Markdown-projectpagina's",
+      "summary": "Hoe deze site elk project uit een gewoon .md-bestand weergeeft met één gedeelde navigatie en footer.",
       "date": "2026-02",
       "tags": ["JavaScript", "Markdown", "GitHub Pages"],
       "featured": true
@@ -21,8 +21,8 @@
     {
       "slug": "habit-cli",
       "file": "habit-cli.md",
-      "title": "habit — a tiny habit tracker",
-      "summary": "A zero-config command line habit tracker that keeps its state in a single JSON file.",
+      "title": "habit — een kleine gewoontetracker",
+      "summary": "Een gewoontetracker voor de opdrachtregel zonder configuratie, die zijn status in één JSON-bestand bewaart.",
       "date": "2025-11",
       "tags": ["Node.js", "CLI", "TypeScript"],
       "featured": true
@@ -30,8 +30,8 @@
     {
       "slug": "reading-list-api",
       "file": "reading-list-api.md",
-      "title": "Reading List API",
-      "summary": "A small REST API for tracking what you're reading, with optimistic deletes and offline sync.",
+      "title": "Leeslijst-API",
+      "summary": "Een kleine REST-API om bij te houden wat je leest, met optimistische deletes en offline synchronisatie.",
       "date": "2025-08",
       "tags": ["Node.js", "Postgres", "REST"],
       "featured": false

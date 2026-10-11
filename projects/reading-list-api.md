@@ -1,51 +1,51 @@
 ---
-title: Reading List API
+title: Leeslijst-API
 date: 2025-08
 tags: [Node.js, Postgres, REST]
-summary: A small REST API for tracking what you're reading, with optimistic deletes and offline sync.
+summary: Een kleine REST-API om bij te houden wat je leest, met optimistische deletes en offline synchronisatie.
 ---
 
-# Reading List API
+# Leeslijst-API
 
-A focused REST API for one job: keeping a personal reading list in sync across
-devices. It's small on purpose — a handful of endpoints, a single table, and a
-sync strategy that behaves well on a flaky phone connection.
+Een gerichte REST-API met één taak: een persoonlijke leeslijst synchroon houden
+tussen apparaten. Klein met opzet — een handvol endpoints, één tabel en een
+synchronisatiestrategie die zich netjes gedraagt op een wankele telefoonverbinding.
 
 ## Endpoints
 
-| Method   | Path                 | Purpose                          |
+| Methode  | Pad                  | Doel                             |
 | -------- | -------------------- | -------------------------------- |
-| `GET`    | `/books`             | List, with `?status=` and `?q=`  |
-| `POST`   | `/books`             | Add a book                       |
-| `PATCH`  | `/books/:id`         | Update status or progress        |
-| `DELETE` | `/books/:id`         | Deleted, but tombstoned          |
-| `POST`   | `/sync`              | Push local changes, pull updates |
+| `GET`    | `/books`             | Lijst, met `?status=` en `?q=`   |
+| `POST`   | `/books`             | Een boek toevoegen               |
+| `PATCH`  | `/books/:id`         | Status of voortgang bijwerken    |
+| `DELETE` | `/books/:id`         | Verwijderd, maar als tombe bewaard |
+| `POST`   | `/sync`              | Lokale wijzigingen pushen, updates pullen |
 
-## Why optimistic deletes
+## Waarom optimistische deletes
 
-Mobile clients go offline constantly. If a delete waits for the server, the UI
-has to guess what to show. Instead, the client applies the change locally and
-queues it:
+Mobiele clients gaan voortdurend offline. Als een delete op de server wacht, moet
+de UI maar raden wat te tonen. In plaats daarvan past de client de wijziging
+lokaal toe en zet hem in de wachtrij:
 
 ```js
 async function removeBook(id) {
   const previous = state.books;
-  state.books = state.books.filter((b) => b.id !== id); // optimistic
+  state.books = state.books.filter((b) => b.id !== id); // optimistisch
   render();
 
   try {
     await api.delete(`/books/${id}`);
     await queue.remove(id);
   } catch (err) {
-    state.books = previous;                              // roll back
+    state.books = previous;                              // terugdraaien
     render();
     await queue.keep(id);
   }
 }
 ```
 
-On the server, deletes are **tombstones** rather than real row deletions, so a
-device that's been offline for a week still learns the book is gone:
+Op de server zijn deletes **tombs** in plaats van echte rijverwijderingen, zodat
+een apparaat dat een week offline was nog steeds leert dat het boek weg is:
 
 ```sql
 UPDATE books
@@ -56,31 +56,32 @@ UPDATE books
 RETURNING id, updated_at;
 ```
 
-> A delete you can't replay is a delete you'll have to make twice.
+> Een delete die je niet kunt herhalen, is een delete die je twee keer moet doen.
 
-## Sync in one round trip
+## Synchroniseren in één roundtrip
 
-`POST /sync` takes the client's `last_synced_at` plus any queued mutations, and
-returns everything that changed since. It's deliberately dumb — last-write-wins
-on a per-field basis — because the data is a reading list, not a bank ledger.
+`POST /sync` krijgt de `last_synced_at` van de client plus eventuele wachtende
+mutaties, en geeft alles terug wat sindsdien is veranderd. Het is bewust dom —
+last-write-wins per veld — want de data is een leeslijst, geen bankgrootboek.
 
-## Hard-won lessons
+## Lessen die ik met vallen en opstaan leerde
 
-- **Timestamps, not versions.** A monotonic `updated_at` column removed an
-  entire class of "which copy is newer?" bugs.
-- **Ids the client can make.** UUIDs generated on the device meant offline
-  creates never needed a server round trip before showing up.
-- **Paginate from day one.** Retrofitting cursors onto an offset API is misery.
+- **Tijdstempels, geen versienummers.** Een monotone `updated_at`-kolom haalde een
+  hele klasse van "welke kopie is nieuwer?"-bugs weg.
+- **Id's die de client zelf maakt.** UUID's die op het apparaat ontstaan, betekenden
+  dat offline aanmaken nooit een serverronde nodig had om te verschijnen.
+- **Pagineren vanaf dag één.** Achteraf cursors op een offset-API plakken is kommer
+  en kwel.
 
-## Numbers
+## Cijfers
 
-| Metric              | Value          |
-| ------------------- | -------------- |
-| p95 latency         | **38 ms**      |
-| Rows in `books`     | 4,200 (mine)   |
-| Test coverage       | 91%            |
-| Infra               | 1 container + 1 DB |
+| Metriek            | Waarde          |
+| ------------------ | --------------- |
+| p95-latentie       | **38 ms**       |
+| Rijen in `books`   | 4.200 (de mijne)|
+| Testdekking        | 91%             |
+| Infra              | 1 container + 1 DB |
 
 ---
 
-*Built to scratch an itch: too many browser bookmarks, no single list.*
+*Gebouwd om een irritatie weg te nemen: te veel browserbladwijzers, geen één lijst.*

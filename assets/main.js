@@ -14,7 +14,7 @@
   var CONFIG = {
     name: 'Dylan Uijthof',
     brand: 'Dylan Uijthof',
-    role: 'Full-Stack Developer',
+    role: 'Full-stack developer',
     email: 'dylanuijthof07@gmail.com',
     github: 'https://github.com/Dylan-Uijthof',
     linkedin: 'https://www.linkedin.com/in/your-handle',
@@ -102,8 +102,8 @@
   /* ========================================================================
      Helpers
      ======================================================================== */
-  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+  var MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni',
+    'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
 
   function formatDate(value) {
     if (!value) return '';
@@ -116,7 +116,7 @@
   function readingTime(html) {
     var text = String(html).replace(/<[^>]*>/g, ' ');
     var words = text.split(/\s+/).filter(Boolean).length;
-    return Math.max(1, Math.round(words / 200)) + ' min read';
+    return Math.max(1, Math.round(words / 200)) + ' min leestijd';
   }
 
   function el(tag, className, text) {
@@ -130,7 +130,7 @@
     return {
       slug: String(p.slug || '').trim(),
       file: String(p.file || (String(p.slug || '').trim() + '.md')),
-      title: String(p.title || p.slug || 'Untitled'),
+      title: String(p.title || p.slug || 'Zonder titel'),
       summary: String(p.summary || p.description || ''),
       date: String(p.date || ''),
       tags: Array.isArray(p.tags) ? p.tags.map(String) : [],
@@ -145,7 +145,7 @@
   function loadManifest() {
     return fetch(CONFIG.manifestUrl, { cache: 'no-store' })
       .then(function (res) {
-        if (!res.ok) throw new Error('Could not load ' + CONFIG.manifestUrl + ' (' + res.status + ')');
+        if (!res.ok) throw new Error('Kan ' + CONFIG.manifestUrl + ' niet laden (' + res.status + ')');
         return res.json();
       })
       .then(function (data) {
@@ -204,7 +204,7 @@
       var featured = projects.filter(function (p) { return p.featured; });
       if (!featured.length) featured = projects;
       featured = featured.slice(0, CONFIG.featuredCount);
-      if (!featured.length) return showEmpty(container, 'No projects yet — add a Markdown file to projects/.');
+      if (!featured.length) return showEmpty(container, 'Nog geen projecten — voeg een Markdown-bestand toe aan projects/.');
       renderCards(container, featured);
     }).catch(function (err) {
       showEmpty(container, err.message);
@@ -217,7 +217,7 @@
     var filters = $('#filters');
 
     loadManifest().then(function (projects) {
-      if (!projects.length) return showEmpty(container, 'No projects yet — add a Markdown file to projects/ and list it in projects.json.');
+      if (!projects.length) return showEmpty(container, 'Nog geen projecten — voeg een Markdown-bestand toe aan projects/ en zet het in projects.json.');
 
       if (filters) {
         var allTags = {};
@@ -239,12 +239,12 @@
               var filtered = value === '' ? projects : projects.filter(function (p) {
                 return p.tags.indexOf(value) !== -1;
               });
-              if (!filtered.length) showEmpty(container, 'Nothing tagged "' + value + '" yet.');
+              if (!filtered.length) showEmpty(container, 'Nog niets met de tag "' + value + '".');
               else renderCards(container, filtered);
             });
             return btn;
           };
-          filters.appendChild(makeBtn('All', ''));
+          filters.appendChild(makeBtn('Alle', ''));
           tags.forEach(function (tag) { filters.appendChild(makeBtn(tag, tag)); });
         }
       }
@@ -262,18 +262,18 @@
     $$('.code-block', scope).forEach(function (block) {
       var code = $('code', block);
       if (!code) return;
-      var btn = el('button', 'copy-btn', 'Copy');
+      var btn = el('button', 'copy-btn', 'Kopieer');
       btn.type = 'button';
       btn.addEventListener('click', function () {
         var text = code.innerText;
         var done = function (label) {
           btn.textContent = label;
-          setTimeout(function () { btn.textContent = 'Copy'; }, 1600);
+          setTimeout(function () { btn.textContent = 'Kopieer'; }, 1600);
         };
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(function () { done('Copied'); }, function () { done('Failed'); });
+          navigator.clipboard.writeText(text).then(function () { done('Gekopieerd'); }, function () { done('Mislukt'); });
         } else {
-          done('Failed');
+          done('Mislukt');
         }
       });
       block.appendChild(btn);
@@ -332,8 +332,8 @@
       var prev = data.projects[index - 1];
       var next = data.projects[index + 1];
       pager.innerHTML = '';
-      pager.appendChild(pagerLink('prev', 'Previous', prev));
-      pager.appendChild(pagerLink('next', 'Next', next));
+      pager.appendChild(pagerLink('prev', 'Vorige', prev));
+      pager.appendChild(pagerLink('next', 'Volgende', next));
     }
   }
 
@@ -357,16 +357,16 @@
     if (!body) return;
     body.innerHTML = '';
     var box = el('div', 'error-box');
-    box.appendChild(el('h2', null, 'Project not found'));
+    box.appendChild(el('h2', null, 'Project niet gevonden'));
     box.appendChild(el('p', null, message));
 
     var hint = el('p');
-    hint.innerHTML = 'If you opened this file directly from disk, run a local server first ' +
-      '(browsers block <code>fetch()</code> on <code>file://</code>), for example: ' +
+    hint.innerHTML = 'Als je dit bestand rechtstreeks vanaf schijf hebt geopend, start dan eerst een ' +
+      'lokale server (browsers blokkeren <code>fetch()</code> op <code>file://</code>), bijvoorbeeld: ' +
       '<code>python3 -m http.server</code>.';
     box.appendChild(hint);
 
-    var back = el('a', 'btn btn-ghost btn-sm', '← Back to projects');
+    var back = el('a', 'btn btn-ghost btn-sm', '← Terug naar projecten');
     back.href = 'projects.html';
     box.appendChild(back);
     body.appendChild(box);
@@ -381,7 +381,7 @@
     var safe = /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(slug) ? slug : '';
 
     if (!safe) {
-      showArticleError(scope, 'No project was specified in the URL.');
+      showArticleError(scope, 'Er is geen project opgegeven in de URL.');
       return;
     }
 
@@ -392,7 +392,7 @@
       // Keep the manifest accessible to the renderer without another request.
       return fetch(CONFIG.projectsDir + file, { cache: 'no-store' })
         .then(function (res) {
-          if (!res.ok) throw new Error(res.status === 404 ? 'There is no file for this project.' : 'Request failed (' + res.status + ').');
+          if (!res.ok) throw new Error(res.status === 404 ? 'Er is geen bestand voor dit project.' : 'Verzoek mislukt (' + res.status + ').');
           return res.text();
         })
         .then(function (md) {
@@ -406,7 +406,7 @@
           });
         });
     }).catch(function (err) {
-      showArticleError(scope, err && err.message ? err.message : 'Something went wrong loading this project.');
+      showArticleError(scope, err && err.message ? err.message : 'Er ging iets mis bij het laden van dit project.');
     });
   }
 
@@ -417,7 +417,7 @@
     $$('[data-copy]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var value = btn.getAttribute('data-copy') || '';
-        var label = btn.getAttribute('data-copy-label') || 'Copied';
+        var label = btn.getAttribute('data-copy-label') || 'Gekopieerd';
         var original = btn.textContent;
         var done = function () {
           btn.textContent = label;

@@ -1,50 +1,51 @@
 ---
-title: Terminal Portfolio
+title: Terminalportfolio
 date: 2026-03
-tags: [JavaScript, CSS, Accessibility]
-summary: A keyboard-first portfolio with a working shell, fuzzy file tree and five switchable themes.
+tags: [JavaScript, CSS, Toegankelijkheid]
+summary: Een portfolio dat je met het toetsenbord bedient, met een werkende shell, fuzzy bestandsboom en vijf wisselbare thema's.
 ---
 
-# Terminal Portfolio
+# Terminalportfolio
 
-Most portfolios are a fancy PDF with extra steps. I wanted mine to feel like the
-tools I actually use all day, so I built a **browser-based terminal** that doubles
-as a portfolio. Type `ls`, open a file, read the output.
+De meeste portfolio's zijn een mooie pdf met extra stappen. Ik wilde dat de mijne
+aanvoelde als de gereedschappen die ik de hele dag gebruik, dus bouwde ik een
+**terminal in de browser** die tegelijk dienstdoet als portfolio. Typ `ls`, open
+een bestand, lees de uitvoer.
 
-> It started as a joke: "what if the contact page was a `cat contact.txt`?"
-> Then it became the whole thing.
+> Het begon als grap: "wat als de contactpagina gewoon `cat contact.txt` was?"
+> Daarna werd het het hele ding.
 
-## Why a terminal?
+## Waarom een terminal?
 
-Three reasons, in order of how much I care about them:
+Drie redenen, in volgorde van hoe belangrijk ik ze vind:
 
-1. **It's honest.** A shell is exactly what I do all day. There's no design
-   language to maintain and nothing to fake.
-2. **It's accessible when done right.** A terminal is just text, and text
-   screenshots beautifully for screen readers — *if* you wire up the ARIA.
-3. **It's fun.** Everything else on the web is a card. This is a prompt.
+1. **Het is eerlijk.** Een shell is precies wat ik de hele dag doe. Er is geen
+   design language om te onderhouden en niets om te faken.
+2. **Het is toegankelijk als je het goed doet.** Een terminal is gewoon tekst, en
+   tekst laat zich prima voorlezen — *mits* je de ARIA goed opzet.
+3. **Het is leuk.** Al het andere op het web is een kaartje. Dit is een prompt.
 
-### The parts that were fiddly
+### De onderdelen die lastig waren
 
-- Handling `Tab` completion without trapping focus *inside* the page.
-- Keeping the caret blinking in sync with a real `<input>`.
-- Making `Ctrl+L` clear the screen without the browser stealing it first.
+- `Tab`-aanvulling zonder de focus *in* de pagina te vangen.
+- De cursor synchroon laten knipperen met een echte `<input>`.
+- `Ctrl+L` het scherm laten wissen zonder dat de browser het eerst pakt.
 
-## Architecture
+## Architectuur
 
-The whole thing is three files and no dependencies:
+Het hele ding is drie bestanden en geen dependencies:
 
 ```text
 terminal-portfolio/
 ├── index.html
 ├── style.css
-└── main.js      ← all the fun lives here
+└── main.js      ← hier zit alle lol
 ```
 
-Commands are a simple lookup table. Adding one is a single object:
+Commando's zijn een simpele opzoektabel. Eén toevoegen is één object:
 
 ```js
-// main.js — command palette
+// main.js — commandopalet
 const commands = {
   help:   () => print(HELP_TEXT),
   ls:     () => print(PROJECTS.map((p) => p.name).join('  ')),
@@ -54,41 +55,42 @@ const commands = {
 };
 ```
 
-Themes are pure CSS custom properties, so switching is a one-line attribute flip:
+Thema's zijn puur CSS custom properties, dus wisselen is één attribuut omzetten:
 
 ```css
 [data-theme="matrix"] { --accent: #00ff9c; --bg: #050806; }
 [data-theme="amber"]  { --accent: #ffb000; --bg: #12100a; }
 ```
 
-## What shipped
+## Wat er is opgeleverd
 
-| Feature        | Status | Notes                                    |
-| -------------- | :----: | ---------------------------------------- |
-| Command parsing|   ✅   | Quotes, flags, `--help`                  |
-| Tab completion |   ✅   | Prefix + fuzzy match                     |
-| History        |   ✅   | `↑` / `↓`, persisted to `localStorage`   |
-| Themes         |   ✅   | 5 built in, remembered between visits    |
-| Mobile keyboard|   ⚠️   | Works, but the soft keyboard is cramped  |
+| Functie          | Status | Opmerking                                    |
+| ---------------- | :----: | -------------------------------------------- |
+| Commandoparsing  |   ✅   | Quotes, flags, `--help`                      |
+| Tab-aanvulling   |   ✅   | Prefix + fuzzy match                         |
+| Geschiedenis     |   ✅   | `↑` / `↓`, bewaard in `localStorage`         |
+| Thema's          |   ✅   | 5 ingebouwd, onthouden tussen bezoeken       |
+| Mobiel toetsenbord | ⚠️   | Werkt, maar het schermtoetsenbord is krap   |
 
-## Things I'd do differently
+## Wat ik anders zou doen
 
-- **I'd start with the mobile layout.** The desktop terminal was easy; making it
-  feel good on a phone took about as long as everything else combined.
-- **I'd write the command parser test-first.** Regular expressions crept in and
-  I paid for it in edge cases.
+- **Ik zou bij de mobiele layout beginnen.** De desktopterminal was makkelijk; hem
+  op een telefoon goed laten voelen kostte ongeveer evenveel als al het andere bij
+  elkaar.
+- **Ik zou de commandoparser test-first schrijven.** Er slopen regexes in en dat
+  betaalde ik terug in randgevallen.
 
-## Take a look
+## Neem een kijkje
 
-The full thing runs on GitHub Pages and is entirely inspectable — no build step,
-no minifier, no framework.
+Het hele ding draait op GitHub Pages en is volledig te inspecteren — geen
+buildstap, geen minifier, geen framework.
 
-- Source: [github.com/Dylan-Uijthof](https://github.com/Dylan-Uijthof)
-- Try it: this site's home page
+- Broncode: [github.com/Dylan-Uijthof](https://github.com/Dylan-Uijthof)
+- Probeer het: de homepagina van deze site
 
-![A screenshot of the terminal portfolio](assets/img/placeholder.svg "Terminal portfolio — placeholder screenshot")
+![Een schermafbeelding van het terminalportfolio](assets/img/placeholder.svg "Terminalportfolio — tijdelijke schermafbeelding")
 
 ---
 
-*Built with vanilla JavaScript, ~600 lines of CSS, and a stubborn refusal to add
-a bundler.*
+*Gemaakt met vanilla JavaScript, ~600 regels CSS en een koppige weigering om een
+bundler toe te voegen.*
