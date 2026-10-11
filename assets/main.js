@@ -15,7 +15,7 @@
     name: 'Dylan Uijthof',
     brand: 'Dylan Uijthof',
     role: 'Systems-minded developer',
-    email: 'dylanuijthof07@gmail.com',
+    email: 'duijthof@pm.me',
     github: 'https://github.com/Dylan-Uijthof',
     linkedin: 'https://www.linkedin.com/in/dylanuijthof/',
 

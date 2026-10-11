@@ -4,7 +4,7 @@ Een klein 3D-spel in Unity, gemaakt aan de hand van de Unity-tutorial Roll-a-bal
 
 **Status:** tutorialproject, speelbaar. De code waar het om gaat staat hieronder in de tekst.
 
-Dit is een tutorialproject en geen eigen ontwerp. Het was voor mij het project waarin ik leerde hoe een game-engine werkt, en dat staat hieronder.
+**Engine:** Unity (C#), dus niet Unreal Engine. Dit is een tutorialproject en geen eigen ontwerp. Het was voor mij een eerste praktische kennismaking met game-engineconcepten. De ervaring is relevant als basiskennis, maar ik presenteer dit niet als Unreal Engine-werk. Mijn interesse voor de stage is juist om die basis verder te ontwikkelen in Unreal Engine en simulatiesoftware.
 
 ![in engine screenshot](assets/img/roll-a-ball.png)
 

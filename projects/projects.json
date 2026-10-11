@@ -14,6 +14,19 @@
       "featured": true
     },
     {
+      "slug": "roll-a-ball",
+      "file": "roll-a-ball.md",
+      "title": "roll-a-ball",
+      "summary": "Unity-tutorialproject waarin ik de basis van game development, physics en navigatie leerde",
+      "date": "27-08-2026",
+      "tags": [
+        "C#",
+        "Unity",
+        "3D"
+      ],
+      "featured": true
+    },
+    {
       "slug": "r-utils",
       "file": "r-utils.md",
       "title": "r-utils",
@@ -50,20 +63,8 @@
         "Markdown",
         "GitHub Pages"
       ],
-      "featured": true
-    },
-    {
-      "slug": "roll-a-ball",
-      "file": "roll-a-ball.md",
-      "title": "roll-a-ball",
-      "summary": "Een Unity-tutorial waarmee ik de basis van game development heb geleerd",
-      "date": "27-08-2026",
-      "tags": [
-        "C#",
-        "Unity",
-        "3D"
-      ],
       "featured": false
     }
+    
   ]
 }
