@@ -8,6 +8,7 @@ Een interpreter voor VNDS-scripts (visual novels van de Nintendo DS) die draait 
 **Status:** pre-release beschikbaar ([download](https://github.com/Hermes-Digital234/vnpsp-RE/releases/tag/0.0.3)). Werkt op PPSSPP, PS Vita en op PSP's met 64 MB RAM (PSP-3000, PSP Go en PSP Street). De PSP-1000 met 24 MB bruikbaar RAM wordt in de herschrijving ondersteund. Bovenop de pre-release bouw ik nu een volledige herschrijving die schoner, uitbreidbaar en makkelijker te porten is. De huidige pre-release is nog closed source. Hieronder staan een paar snippets.
 
 ![vnpsp-RE running in ppsspp](assets/img/vnpsp-RE.png "vnpsp-RE in ppsspp")
+![vnpsp-RE running in ppsspp](assets/img/Real-psp.jpg "vnpsp-RE in ppsspp")
 
 **Hoe ik het gebouwd heb:** de pre-release heb ik grotendeels zelf geschreven. Een AI-codeeragent heeft me geholpen met onderdelen die ik vervelend vond, vooral het grafische werk en het conversiescript voor mijn eigen assetformaten. Het ontwerp, de bestandsformaten en de technische keuzes waren van mij, en het testen en debuggen op echte hardware deed ik zelf. De herschrijving schrijf ik volledig zelf, zonder gegenereerde code. AI gebruik ik daar alleen als sparringpartner om efficiëntere en schonere oplossingen te vinden, en dat blijft zo.
 
