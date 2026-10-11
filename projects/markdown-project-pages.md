@@ -1,103 +1,76 @@
----
-title: Markdown-projectpagina's
-date: 2026-02
-tags: [JavaScript, Markdown, GitHub Pages]
-summary: Hoe deze site elk project uit een gewoon .md-bestand weergeeft met één gedeelde navigatie en footer.
----
+## Markdown-projectpagina's: projectteksten als losse .md-bestanden
 
-# Markdown-projectpagina's
+Elk project op deze site is één Markdown-bestand. Ik wilde projectteksten kunnen schrijven in het formaat dat ik toch al gebruik in `README`'s, zonder de navigatie en footer van de site op te geven. Dus haalt deze pagina het `.md`-bestand op met `fetch()`, zet het in de browser om naar HTML en plakt het in een normale pagina die de navigatie en footer al heeft.
 
-Ik wilde projectteksten schrijven in Markdown — het formaat dat ik toch al gebruik
-in `README`'s — zonder de navigatie van de site op te geven. Dus laadt dit
-portfolio elk `.md`-bestand met `fetch()`, zet het in de browser om naar HTML en
-zet het in een normale pagina die de navigatie en footer al heeft.
+[GitHub](https://github.com/Dylan-Uijthof/Dylan-Uijthof.github.io)
 
-Geen static-site generator. Geen buildstap. Alleen een kleine renderer.
+**Status:** in gebruik op deze site. Draait volledig in de browser, zonder dependencies of buildstap.
 
-## Het idee
+### Waarom ik het maakte
 
-Elk project is één Markdown-bestand in `projects/`:
+Ik wilde geen framework en geen buildstap. GitHub Pages serveert statische bestanden, en met platte HTML, CSS en JS blijft de site eenvoudig: geen dependencies, geen tooling. Maar ik wilde mijn projectteksten ook niet in HTML schrijven: dat is onleesbaar in een diff en vervelend om aan te passen. Markdown met een renderer in de browser gaf me beide — de site blijft statisch, en ik schrijf in een formaat dat leesbaar blijft.
 
-```text
-projects/
-├── projects.json              ← de index die de pagina leest
-├── terminal-portfolio.md
-├── markdown-project-pages.md
-├── habit-cli.md
-└── reading-list-api.md
-```
+### Wat ik ervan geleerd heb
 
-Op een kaartje klikken brengt je naar `project.html?p=<slug>`. Die pagina:
+- **Hoeveel Markdown je met weinig code kunt ondersteunen.** Koppen, lijsten, tabellen, blockquotes, codeblokken en taken kosten ongeveer 250 regels JS. CommonMark is groot; de subset die ik echt gebruik niet.
+- **Dat je eerst moet escapen en dan opmaken.** HTML escapen vóór je Markdown-vervangingen doet, is de veilige volgorde. Anders kun je via je eigen tekst HTML injecteren.
+- **Dat `fetch()` een server nodig heeft.** `project.html` direct vanaf schijf openen werkt niet: browsers blokkeren `fetch()` op `file://`. Lokaal test ik met `python3 -m http.server`.
 
-1. leest de `p=`-parameter uit de URL,
-2. zoekt het bijbehorende item in `projects.json`,
-3. haalt `projects/<bestand>.md` op,
-4. rendert het in `#article-body`,
-5. werkt de titel, het kruimelpad, de leestijd en de vorige/volgende-links bij.
+### Beslissingen en waarom
 
-> De navigatie en footer blijven staan — alleen het midden van de pagina wisselt.
+- **Een JSON-manifest in plaats van een map uitlezen.** GitHub Pages kan geen mappenindex genereren, dus `projects.json` is de expliciete lijst met titels, datums en tags voor het overzicht.
+- **Front matter is optioneel.** Titel, datum en tags komen uit het manifest; een `.md`-bestand mag ze overschrijven. Bestanden zoals `vnpsp-RE.md` hebben helemaal geen front matter — hun openingskop is de titel.
+- **De openingskop is de titel.** De renderer haalt een `#`/`##`-kop bovenaan het bestand eruit en gebruikt die als paginatitel, zodat de titel niet twee keer op de pagina staat.
+- **Syntax highlighting zonder dependency.** Geen CDN, geen build — een klein tokenizertje in `markdown.js` kleurt de talen die ik gebruik.
 
-## Het manifest
+### Wat ik zou verbeteren
 
-GitHub Pages kan geen map uitlezen, dus een klein JSON-bestand doet dienst als
-vervanger:
+- **Ankers zijn niet stabiel.** Verander je een kop, dan verandert de slug. Een expliciete anker-syntax zou links van buitenaf betrouwbaarder maken.
+- **Geen volledige CommonMark.** Geneste lijsten en af en toe een tabelrand wijken van de spec af. Voor mezelf prima; laat ik ooit Markdown van anderen renderen, dan pak ik een echte parser.
+- **Alles gebeurt client-side.** Op een trage verbinding zie je de tekst even later verschijnen. Pre-renderen zou dat oplossen, maar dat vraagt een buildstap (bijvoorbeeld via GitHub Actions), en die wilde ik bewust niet.
 
-```json
-{
-  "projects": [
-    {
-      "slug": "terminal-portfolio",
-      "title": "Terminalportfolio",
-      "date": "2026-03",
-      "tags": ["JavaScript", "CSS"],
-      "featured": true
-    }
-  ]
+### Code-highlights
+
+**1. Een project laden op basis van de `?p=`-parameter (`main.js`)**
+
+```js
+async function loadProject(slug) {
+  var entry = projects.find(function (p) { return p.slug === slug; });
+  var res = await fetch(CONFIG.projectsDir + entry.file);
+  var parsed = Markdown.parseWithMeta(await res.text());
+  document.getElementById('article-body').innerHTML = parsed.html;
 }
 ```
 
-De `title`, `date` en `tags` in het manifest zijn alleen voor de overzichtspagina.
-Elk Markdown-bestand heeft *ook* zijn eigen front matter, en die wint op de
-detailpagina:
+*Waarom zo:* de URL is de enige bron van waarheid voor welk project je bekijkt. Daardoor werken een gedeelde link, de terugknop en een verversing allemaal zonder extra state.
 
-```yaml
----
-title: Terminalportfolio
-date: 2026-03
-tags: [JavaScript, CSS, Toegankelijkheid]
-summary: Een portfolio dat je met het toetsenbord bedient.
----
+**2. De openingskop als titel pakken (`markdown.js`)**
+
+```js
+var lead = md.match(/^[ \t]*(#{1,2})[ \t]+(.+?)[ \t]*#*[ \t]*(?:\n|$)/);
+if (lead) {
+  var leadTitle = lead[2].replace(/[`*_~\[\]]/g, '').trim();
+  if (leadTitle && !meta.title) meta.title = leadTitle;
+  md = md.slice(lead[0].length);
+}
 ```
 
-## Wat de renderer ondersteunt
+*Waarom zo:* hierdoor kan een bestand als `r-utils.md` met `##` beginnen en is die kop meteen de titel van de pagina — geen front matter nodig, en geen dubbele titel.
 
-- [x] Koppen 1–6 met klikbare ankers
-- [x] Vet, cursief, ~~doorgestreept~~, `inline code`
-- [x] Links en afbeeldingen, met `title`-attributen
-- [x] Codeblokken met ``` fences (inclusief kopieerknop)
-- [x] Blockquotes, ook genest
-- [x] Geordende, ongeordende en geneste lijsten
-- [x] Tabellen met uitlijning
-- [ ] Syntax highlighting *(bewust weggelaten — hield de payload klein)*
+**3. Een klein tokenizertje voor highlighting (`markdown.js`)**
 
-## Afwegingen
+```js
+if (cfg.strings && cfg.strings.indexOf(c) !== -1) {
+  var q = c, j = i + 1, s = c;
+  while (j < n) {
+    if (code[j] === '\\') { s += code.substr(j, 2); j += 2; continue; }
+    if (code[j] === q) { s += q; j++; break; }
+    s += code[j];
+    j++;
+  }
+  span('tok-str', s);
+  i = j;
+}
+```
 
-| Keuze                 | Voordeel                        | Nadeel                            |
-| --------------------- | ------------------------------- | --------------------------------- |
-| Renderen in de browser| Geen build, direct te bekijken  | Korte flikkering tijdens laden    |
-| Zelfgeschreven parser | ~250 regels, geen dependencies  | Niet 100% CommonMark              |
-| JSON-manifest         | Expliciete volgorde en metadata | Extra bestand om synchroon te houden |
-
-## Valkuilen die het weten waard zijn
-
-1. **Fetch heeft een server nodig.** `project.html` direct vanaf schijf openen
-   geeft een fout, want browsers blokkeren `fetch()` op `file://`. Start
-   `python3 -m http.server` en ga naar `localhost:8000` om lokaal te bekijken.
-2. **Afbeeldingspaden zijn relatief aan de pagina, niet aan het Markdown-bestand.**
-   Omdat de HTML in `project.html` in de hoofdmap wordt gezet, schrijf je
-   `assets/img/foo.png` — niet `../assets/img/foo.png`.
-3. **Houd slugs saai.** Kleine letters, streepjes, geen spaties. Ze komen in de URL.
-
----
-
-*Nog een projectpagina, nog een `.md`-bestand, en het overzicht werkt zichzelf bij.*
+*Waarom zo:* in plaats van een bibliotheek loop ik de code één teken per keer door. Zodra ik een aanhalingsteken tegenkom, lees ik door tot het bijbehorende sluitteken, en een teken na een backslash sla ik over, zodat een ge-escapete quote de string niet afsluit.

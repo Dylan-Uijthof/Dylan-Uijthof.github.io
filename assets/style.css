@@ -35,6 +35,18 @@
   --mark: #fff2a8;
   --shadow-sm: 0 1px 2px rgba(16, 24, 40, .05);
   --shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 12px 28px rgba(16, 24, 40, .07);
+
+  /* code syntax tokens */
+  --tok-com: #6a737d;
+  --tok-str: #032f62;
+  --tok-num: #005cc5;
+  --tok-kw: #cf222e;
+  --tok-typ: #6f42c1;
+  --tok-fn: #8250df;
+  --tok-bi: #953800;
+  --tok-op: #57606a;
+  --tok-meta: #b31d28;
+  --tok-anno: #953800;
 }
 
 [data-theme="dark"] {
@@ -54,6 +66,18 @@
   --mark: #4a3f13;
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
   --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 16px 34px rgba(0, 0, 0, .45);
+
+  /* code syntax tokens */
+  --tok-com: #6b7b8c;
+  --tok-str: #98c379;
+  --tok-num: #d19a66;
+  --tok-kw: #c678dd;
+  --tok-typ: #e5c07b;
+  --tok-fn: #61afef;
+  --tok-bi: #56b6c2;
+  --tok-op: #8b93a1;
+  --tok-meta: #56b6c2;
+  --tok-anno: #d19a66;
 }
 
 /* --------------------------------------------------------------------------
@@ -564,6 +588,18 @@ main { flex: 1 0 auto; }
   font-size: inherit;
   white-space: pre;
 }
+
+/* Syntax highlighting tokens (see assets/markdown.js) */
+.tok-com { color: var(--tok-com); font-style: italic; }
+.tok-str { color: var(--tok-str); }
+.tok-num { color: var(--tok-num); }
+.tok-kw  { color: var(--tok-kw); }
+.tok-typ { color: var(--tok-typ); }
+.tok-fn  { color: var(--tok-fn); }
+.tok-bi  { color: var(--tok-bi); }
+.tok-op  { color: var(--tok-op); }
+.tok-meta { color: var(--tok-meta); }
+.tok-anno { color: var(--tok-anno); }
 
 .copy-btn {
   position: absolute;

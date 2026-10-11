@@ -14,10 +14,10 @@
   var CONFIG = {
     name: 'Dylan Uijthof',
     brand: 'Dylan Uijthof',
-    role: 'Full-stack developer',
+    role: 'Systems-minded developer',
     email: 'dylanuijthof07@gmail.com',
     github: 'https://github.com/Dylan-Uijthof',
-    linkedin: 'https://www.linkedin.com/in/your-handle',
+    linkedin: 'https://www.linkedin.com/in/dylanuijthof/',
 
     // The project manifest. Add/remove entries here (or just edit the JSON).
     manifestUrl: 'projects/projects.json',
@@ -25,8 +25,10 @@
     // Where the Markdown files live, relative to the site root.
     projectsDir: 'projects/',
 
-    // How many projects to feature on the home page.
-    featuredCount: 3
+    // How many projects to feature on the home page. Projects marked
+    // "featured": true in the manifest are shown, up to this many (in
+    // manifest order). Raise it if more than this are marked featured.
+    featuredCount: 4
   };
   window.SITE = CONFIG;
 
@@ -107,10 +109,21 @@
 
   function formatDate(value) {
     if (!value) return '';
-    var m = String(value).match(/^(\d{4})(?:-(\d{2}))?(?:-(\d{2}))?/);
-    if (!m) return String(value);
-    var month = m[2] ? MONTHS[Math.max(0, Math.min(11, parseInt(m[2], 10) - 1))] + ' ' : '';
-    return month + m[1];
+    var s = String(value).trim();
+    var m;
+
+    // ISO / year-month: 2026, 2026-03 or 2026-03-14
+    m = s.match(/^(\d{4})(?:-(\d{1,2}))?(?:-(\d{1,2}))?$/);
+    if (m) {
+      var name = m[2] ? MONTHS[Math.max(0, Math.min(11, parseInt(m[2], 10) - 1))] + ' ' : '';
+      return name + m[1];
+    }
+
+    // Dutch style: 14-03-2026 or 14/03/2026
+    m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (m) return MONTHS[Math.max(0, Math.min(11, parseInt(m[2], 10) - 1))] + ' ' + m[3];
+
+    return s;
   }
 
   function readingTime(html) {

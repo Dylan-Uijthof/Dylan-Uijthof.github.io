@@ -1,12 +1,42 @@
 {
   "projects": [
     {
-      "slug": "terminal-portfolio",
-      "file": "terminal-portfolio.md",
-      "title": "Terminalportfolio",
-      "summary": "Een portfolio dat je met het toetsenbord bedient, met een werkende shell, fuzzy bestandsboom en vijf wisselbare thema's.",
-      "date": "2026-03",
-      "tags": ["JavaScript", "CSS", "Toegankelijkheid"],
+      "slug": "vnpsp-RE",
+      "file": "vnpsp-RE.md",
+      "title": "vnpsp-RE",
+      "summary": "Een VNDS-interpreter voor de Sony PSP",
+      "date": "07-10-2026",
+      "tags": [
+        "C++",
+        "pspsdk",
+        "libgu"
+      ],
+      "featured": true
+    },
+    {
+      "slug": "r-utils",
+      "file": "r-utils.md",
+      "title": "r-utils",
+      "summary": "Mijn meestgebruikte coreutils, geschreven in Rust",
+      "date": "16-09-2026",
+      "tags": [
+        "Rust",
+        "CLI"
+      ],
+      "featured": true
+    },
+    {
+      "slug": "setu-diff",
+      "file": "setu-diff.md",
+      "title": "setu-diff",
+      "summary": "Een proof of concept voor mijn bijdrage bij Randstad Nederland tijdens mijn stage",
+      "date": "04-09-2025",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "MongoDB",
+        "JS"
+      ],
       "featured": true
     },
     {
@@ -14,26 +44,25 @@
       "file": "markdown-project-pages.md",
       "title": "Markdown-projectpagina's",
       "summary": "Hoe deze site elk project uit een gewoon .md-bestand weergeeft met één gedeelde navigatie en footer.",
-      "date": "2026-02",
-      "tags": ["JavaScript", "Markdown", "GitHub Pages"],
+      "date": "06-10-2026",
+      "tags": [
+        "JS",
+        "Markdown",
+        "GitHub Pages"
+      ],
       "featured": true
     },
     {
-      "slug": "habit-cli",
-      "file": "habit-cli.md",
-      "title": "habit — een kleine gewoontetracker",
-      "summary": "Een gewoontetracker voor de opdrachtregel zonder configuratie, die zijn status in één JSON-bestand bewaart.",
-      "date": "2025-11",
-      "tags": ["Node.js", "CLI", "TypeScript"],
-      "featured": true
-    },
-    {
-      "slug": "reading-list-api",
-      "file": "reading-list-api.md",
-      "title": "Leeslijst-API",
-      "summary": "Een kleine REST-API om bij te houden wat je leest, met optimistische deletes en offline synchronisatie.",
-      "date": "2025-08",
-      "tags": ["Node.js", "Postgres", "REST"],
+      "slug": "roll-a-ball",
+      "file": "roll-a-ball.md",
+      "title": "roll-a-ball",
+      "summary": "Een Unity-tutorial waarmee ik de basis van game development heb geleerd",
+      "date": "27-08-2026",
+      "tags": [
+        "C#",
+        "Unity",
+        "3D"
+      ],
       "featured": false
     }
   ]

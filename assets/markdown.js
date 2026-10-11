@@ -116,6 +116,221 @@
     return out;
   }
 
+  /* ---------------------------------------------------- syntax highlighting */
+  // A tiny, dependency-free highlighter — good enough for the snippets on a
+  // portfolio, not a compiler. Unknown languages fall back to plain text.
+
+  function words(str) {
+    var out = {};
+    String(str).split(/\s+/).forEach(function (w) { if (w) out[w] = true; });
+    return out;
+  }
+
+  var LANGS = {};
+  function defLang(names, cfg) {
+    names.split(/\s+/).forEach(function (n) { LANGS[n] = cfg; });
+  }
+
+  var C_KEYWORDS = 'alignas alignof asm auto bool break case catch char class const constexpr const_cast continue decltype default delete do double dynamic_cast else enum explicit export extern false float for friend goto if inline int long mutable namespace new noexcept nullptr operator private protected public register reinterpret_cast return short signed sizeof static static_assert static_cast struct switch template this thread_local throw true try typedef typeid typename union unsigned using virtual void volatile wchar_t while';
+  var C_TYPES = 'size_t ssize_t int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t intptr_t uintptr_t FILE std string vector map set pair list deque array unique_ptr shared_ptr weak_ptr optional variant string_view';
+  var RUST_KEYWORDS = 'as async await break const continue crate dyn else enum extern false fn for if impl in let loop match mod move mut pub ref return self static struct super trait true type unsafe use where while';
+  var RUST_TYPES = 'i8 i16 i32 i64 i128 isize u8 u16 u32 u64 u128 usize f32 f64 bool char str String Vec Option Result Box Rc Arc RefCell Cell HashMap HashSet BTreeMap BTreeSet Path PathBuf OsStr OsString CString Cow Some None Ok Err Ordering Duration Instant';
+  var JS_KEYWORDS = 'var let const function return if else for while do switch case break continue new delete typeof instanceof in of class extends super this try catch finally throw async await yield import export from default as static get set void with debugger';
+  var JS_TYPES = 'string number boolean any void never unknown object symbol bigint interface type enum namespace declare implements readonly public private protected abstract keyof infer satisfies override';
+  var JS_BUILTINS = 'console window document globalThis Math JSON Object Array String Number Boolean Promise Map Set WeakMap WeakSet Date RegExp Error Symbol BigInt Infinity NaN undefined null true false this';
+  var SH_KEYWORDS = 'if then else elif fi for while until do done case esac function in select return break continue local export readonly declare';
+  var SH_BUILTINS = 'echo cd ls pwd cat mkdir rm cp mv touch grep sed awk printf read source alias unset exit set test';
+  var SQL_KEYWORDS = 'select from where insert into values update delete set join left right inner outer full on group by order limit offset as and or not null is in like between distinct having union all create table primary key foreign references index unique drop alter add column default returning with asc desc case when then else end count sum avg min max cast coalesce';
+  var PY_KEYWORDS = 'def class return if elif else for while break continue pass import from as try except finally raise with yield lambda global nonlocal assert del in is not and or None True False async await';
+  var PY_BUILTINS = 'print len range str int float list dict set tuple bool open enumerate zip map filter sum min max sorted type isinstance super self';
+  var JAVA_KEYWORDS = 'abstract assert boolean break byte case catch char class const continue default do double else enum extends final finally float for goto if implements import instanceof int interface long native new package private protected public record return sealed short static strictfp super switch synchronized this throw throws transient try var void volatile while permits yield true false null';
+  var JAVA_TYPES = 'String Integer Long Double Float Boolean Character Byte Short Object Number List Map Set Collection ArrayList LinkedList HashMap TreeMap LinkedHashMap HashSet TreeSet Optional Stream Iterable Iterator Comparable Comparator Exception RuntimeException IllegalArgumentException IllegalStateException StringBuilder InputStream OutputStream File Files Path Paths Arrays Collections LocalDate LocalDateTime Instant Duration BigDecimal BigInteger HttpStatus ResponseEntity MultipartFile JsonNode ObjectMapper';
+  var CS_KEYWORDS = 'abstract as base bool break byte case catch char checked class const continue decimal default delegate do double else enum event explicit extern false finally fixed float for foreach get goto if implicit in init int interface internal is lock long namespace new null object operator out override params private protected public readonly record ref return sbyte sealed set short sizeof stackalloc static string struct switch this throw true try typeof uint ulong unchecked unsafe ushort using var virtual void volatile when where while yield async await dynamic nameof global';
+  var CS_TYPES = 'String Int32 Int64 Double Single Boolean Char Byte Decimal Object Array List Dictionary HashSet IEnumerable IEnumerator ICollection IList IDictionary Task ValueTask Exception ArgumentException InvalidOperationException NullReferenceException Console Math DateTime TimeSpan Guid StringBuilder StringReader TextWriter Stream MemoryStream FileStream File Path Linq Enumerable Queryable HttpClient JsonSerializer JsonDocument JsonElement JsonNode ObservableCollection KeyValuePair Nullable Tuple';
+
+  defLang('c h', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"', "'"],
+    keywords: words(C_KEYWORDS), types: words(C_TYPES), preproc: '#', classes: true
+  });
+  defLang('cpp cc cxx c++ hpp hxx', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"', "'"],
+    keywords: words(C_KEYWORDS), types: words(C_TYPES), preproc: '#', classes: true
+  });
+  defLang('rust rs', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"'],
+    keywords: words(RUST_KEYWORDS), types: words(RUST_TYPES), classes: true, macro: true
+  });
+  defLang('js javascript jsx mjs cjs ts typescript tsx', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"', "'", '`'],
+    keywords: words(JS_KEYWORDS), types: words(JS_TYPES), builtins: words(JS_BUILTINS), classes: true
+  });
+  defLang('json', {
+    line: [], block: null, strings: ['"'], keywords: words('true false null')
+  });
+  defLang('sh bash zsh shell', {
+    line: ['#'], block: null, strings: ['"', "'"],
+    keywords: words(SH_KEYWORDS), builtins: words(SH_BUILTINS)
+  });
+  defLang('sql', {
+    line: ['--'], block: ['/*', '*/'], strings: ["'", '"'],
+    keywords: words(SQL_KEYWORDS.toUpperCase()), ci: true
+  });
+  defLang('yaml yml', {
+    line: ['#'], block: null, strings: ['"', "'"]
+  });
+  defLang('css scss less', {
+    line: [], block: ['/*', '*/'], strings: ['"', "'"]
+  });
+  defLang('py python', {
+    line: ['#'], block: null, strings: ['"', "'"],
+    keywords: words(PY_KEYWORDS), builtins: words(PY_BUILTINS)
+  });
+  defLang('java', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"', "'"],
+    keywords: words(JAVA_KEYWORDS), types: words(JAVA_TYPES), classes: true, annotations: true
+  });
+  defLang('cs csharp c#', {
+    line: ['//'], block: ['/*', '*/'], strings: ['"', "'"],
+    keywords: words(CS_KEYWORDS), types: words(CS_TYPES), preproc: '#', classes: true
+  });
+
+  function resolveLang(lang) {
+    var key = String(lang || '').toLowerCase()
+      .replace(/^language-/, '')
+      .replace(/[^a-z+#]/g, '');
+    return LANGS[key] || null;
+  }
+
+  function highlight(code, lang) {
+    var cfg = typeof lang === 'object' && lang ? lang : resolveLang(lang);
+    if (!cfg) return escapeHtml(code);
+
+    var out = '';
+    var i = 0;
+    var n = code.length;
+    var lineStart = true;
+
+    function isDigit(ch) { return ch >= '0' && ch <= '9'; }
+    function isIdentStart(ch) { return /[A-Za-z_$]/.test(ch); }
+    function isIdent(ch) { return /[A-Za-z0-9_$]/.test(ch); }
+    function span(cls, text) { out += '<span class="' + cls + '">' + escapeHtml(text) + '</span>'; }
+
+    while (i < n) {
+      var c = code[i];
+
+      // Preprocessor directive (C/C++): "#include ..." up to the end of the line.
+      if (cfg.preproc && c === cfg.preproc && lineStart) {
+        var eol = code.indexOf('\n', i);
+        var pstop = eol === -1 ? n : eol;
+        span('tok-meta', code.slice(i, pstop));
+        i = pstop;
+        continue;
+      }
+
+      // Block comment.
+      if (cfg.block && code.substr(i, cfg.block[0].length) === cfg.block[0]) {
+        var bend = code.indexOf(cfg.block[1], i + cfg.block[0].length);
+        var bstop = bend === -1 ? n : bend + cfg.block[1].length;
+        span('tok-com', code.slice(i, bstop));
+        i = bstop;
+        lineStart = false;
+        continue;
+      }
+
+      // Line comment.
+      if (cfg.line && cfg.line.length) {
+        var hit = false;
+        for (var li = 0; li < cfg.line.length; li++) {
+          if (code.substr(i, cfg.line[li].length) === cfg.line[li]) {
+            var lend = code.indexOf('\n', i);
+            var lstop = lend === -1 ? n : lend;
+            span('tok-com', code.slice(i, lstop));
+            i = lstop;
+            hit = true;
+            break;
+          }
+        }
+        if (hit) continue;
+      }
+
+      // Strings.
+      if (cfg.strings && cfg.strings.indexOf(c) !== -1) {
+        var q = c, j = i + 1, s = c;
+        while (j < n) {
+          if (code[j] === '\\') { s += code.substr(j, 2); j += 2; continue; }
+          if (code[j] === q) { s += q; j++; break; }
+          if (q !== '`' && code[j] === '\n') break;
+          s += code[j];
+          j++;
+        }
+        span('tok-str', s);
+        i = j;
+        lineStart = false;
+        continue;
+      }
+
+      // Numbers.
+      if (isDigit(c) || (c === '.' && isDigit(code[i + 1]))) {
+        var m = code.slice(i).match(/^(0[xX][0-9a-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?(?:[eE][+-]?\d+)?)/);
+        var num = m ? m[0] : c;
+        span('tok-num', num);
+        i += num.length;
+        lineStart = false;
+        continue;
+      }
+
+      // Identifiers, keywords, types and calls.
+      if (isIdentStart(c)) {
+        var k = i;
+        while (k < n && isIdent(code[k])) k++;
+        var word = code.slice(i, k);
+        var kw = cfg.keywords && cfg.keywords[cfg.ci ? word.toUpperCase() : word];
+        var ty = cfg.types && cfg.types[word];
+        var bi = cfg.builtins && cfg.builtins[word];
+        var after = k;
+        while (after < n && (code[after] === ' ' || code[after] === '\t')) after++;
+        var isCall = code[after] === '(' || (cfg.macro && code[after] === '!');
+        if (kw) span('tok-kw', word);
+        else if (ty) span('tok-typ', word);
+        else if (bi) span('tok-bi', word);
+        else if (isCall) span('tok-fn', word);
+        else if (cfg.classes && /^[A-Z][A-Za-z0-9_]*$/.test(word)) span('tok-typ', word);
+        else out += escapeHtml(word);
+        i = k;
+        lineStart = false;
+        continue;
+      }
+
+      // Annotations (@Override, @PostMapping, ...).
+      if (cfg.annotations && c === '@' && isIdentStart(code[i + 1] || '')) {
+        var ak = i + 1;
+        while (ak < n && isIdent(code[ak])) ak++;
+        span('tok-anno', code.slice(i, ak));
+        i = ak;
+        lineStart = false;
+        continue;
+      }
+
+      // Operators and punctuation.
+      if ('{}()[];,.:?!+-*/%=<>&|^~@'.indexOf(c) !== -1) {
+        var op = i;
+        while (op < n && '{}()[];,.:?!+-*/%=<>&|^~@'.indexOf(code[op]) !== -1) op++;
+        span('tok-op', code.slice(i, op));
+        i = op;
+        lineStart = false;
+        continue;
+      }
+
+      // Whitespace and anything else.
+      out += escapeHtml(c);
+      if (c === '\n') lineStart = true;
+      else if (c !== ' ' && c !== '\t' && c !== '\r') lineStart = false;
+      i++;
+    }
+
+    return out;
+  }
+
   /* ---------------------------------------------------------------- blocks */
 
   function renderHeading(level, text) {
@@ -127,9 +342,11 @@
 
   function renderCode(code, info) {
     var lang = String(info || '').trim().replace(/^\{|\}$/g, '').split(/[\s,]+/)[0] || '';
+    lang = lang.replace(/^language-/, '');
+    var body = highlight(code.replace(/\n+$/, ''), lang);
     return '<div class="code-block"><pre><code' +
       (lang ? ' class="language-' + attr(escapeHtml(lang)) + '"' : '') +
-      '>' + escapeHtml(code.replace(/\n+$/, '')) + '</code></pre></div>';
+      '>' + body + '</code></pre></div>';
   }
 
   function fence(line) {
@@ -383,6 +600,15 @@
       md = md.slice(fm[0].length);
     }
 
+    // A leading level-1/2 heading is the page title, not a section. Pull it out
+    // so the page can render it once, above the body (no duplicate title).
+    var lead = md.match(/^[ \t]*(#{1,2})[ \t]+(.+?)[ \t]*#*[ \t]*(?:\n|$)/);
+    if (lead) {
+      var leadTitle = lead[2].replace(/[`*_~\[\]]/g, '').trim();
+      if (leadTitle && !meta.title) meta.title = leadTitle;
+      md = md.slice(lead[0].length);
+    }
+
     return { html: renderBlocks(md.split('\n')).join('\n'), meta: meta };
   }
 
@@ -407,6 +633,8 @@
     parse: function (md) { return parse(md).html; },
     parseWithMeta: parse,
     toc: toc,
+    highlight: highlight,
+    languages: LANGS,
     slugify: slugify,
     escapeHtml: escapeHtml
   };
